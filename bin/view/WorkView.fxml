@@ -142,7 +142,7 @@
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Slider fx:id="slider" prefHeight="16.0" prefWidth="598.0">
+                              <Slider fx:id="slider" onDragDetected="#printX" onDragDone="#printX" prefHeight="16.0" prefWidth="598.0">
                                  <GridPane.margin>
                                     <Insets />
                                  </GridPane.margin>

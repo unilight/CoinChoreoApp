@@ -27,8 +27,10 @@ import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcTo;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.StrokeType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -42,6 +44,10 @@ import model.Keyframe;
 public class WorkViewController {
 
 	public final static int CIRCLE_RADIUS = 10;
+	public final static int KEYFRAME_CIRCLE_RADIUS = 4;
+	public final static int SLIDER_WIDTH = 625;
+	public final static int SLIDER_X = 18;
+	public final static int SLIDER_Y = 5;
 	public final static int SELECT_RADIUS = 12;
 	public final static int LINE_WIDTH = 2;
 	public final static int ERASE_WIDTH = 5;
@@ -77,9 +83,7 @@ public class WorkViewController {
 	private double orgSceneX, orgSceneY;
 
 	private ObservableList<Keyframe> timeline = FXCollections.observableArrayList();
-	
-	
-	
+
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
 	Media media;
@@ -118,6 +122,12 @@ public class WorkViewController {
 	}
 
 	@FXML
+	private void printX(MouseEvent e) {
+		System.out.format("x:%f, y:%f%n", e.getSceneX(), e.getSceneY());
+		System.out.format("x:%f, y:%f%n", e.getScreenX(), e.getScreenY());
+	}
+
+	@FXML
 	private void drawCircle(MouseEvent e) {
 		// System.out.println(e.getSource());
 		// System.out.println(e.getTarget());
@@ -135,6 +145,7 @@ public class WorkViewController {
 
 				// 先新建一個Keyframe
 				Keyframe newKeyFrame = new Keyframe(circleTranslates, mediaPlayer.getCurrentTime());
+				addKeyframePane(newKeyFrame);
 				for (int i = 0; i < timeline.size(); i++) {
 					// 在此時間點已經有keyframe, 則直接break
 					if (timeline.get(i).getTime().toMillis() == newKeyFrame.getTime().toMillis()) {
@@ -199,6 +210,17 @@ public class WorkViewController {
 			}
 		}
 
+	}
+
+	private void addKeyframePane(Keyframe newKeyFrame) {
+		double keyframeTime = newKeyFrame.getTime().toMillis();
+		double x = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis();
+		Circle circle = new Circle(x, SLIDER_Y, KEYFRAME_CIRCLE_RADIUS, Color.GOLD);
+		circle.setStroke(Color.BLACK);
+		circle.setStrokeType(StrokeType.OUTSIDE);
+		circle.setStrokeWidth(1);
+		newKeyFrame.setPaneCircle(circle);
+		keyframePane.getChildren().add(circle);
 	}
 
 	private void listTimeline() {
@@ -348,6 +370,7 @@ public class WorkViewController {
 				if (timeline.get(i).getTime().toMillis() >= mediaPlayer.getCurrentTime().toMillis()) {
 					Keyframe newKeyFrame = new Keyframe(circleTranslates, mediaPlayer.getCurrentTime());
 					timeline.add(i, newKeyFrame);
+					addKeyframePane(newKeyFrame);
 					break;
 				}
 			}
@@ -365,8 +388,18 @@ public class WorkViewController {
 		mediaPlayer.setOnReady(() -> {
 			mediaPlayer.setAudioSpectrumInterval(0.0016);
 			duration = mediaPlayer.getMedia().getDuration();
-			timeline.add(new Keyframe(circleTranslates, new Duration(0)));
-			timeline.add(new Keyframe(circleTranslates, duration));
+			
+			Line line = new Line(SLIDER_X, SLIDER_Y, SLIDER_X+SLIDER_WIDTH, SLIDER_Y);
+			keyframePane.getChildren().add(line);
+			
+			Keyframe newKeyframe;
+			newKeyframe = new Keyframe(circleTranslates, new Duration(0));
+			timeline.add(newKeyframe);
+			addKeyframePane(newKeyframe);
+			newKeyframe = new Keyframe(circleTranslates, duration);
+			timeline.add(newKeyframe);
+			addKeyframePane(newKeyframe);
+			
 			groupToggle.setDisable(false);
 			addToggle.setDisable(false);
 			deleteToggle.setDisable(false);
