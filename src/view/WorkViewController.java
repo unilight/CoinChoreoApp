@@ -388,10 +388,10 @@ public class WorkViewController {
 		mediaPlayer.setOnReady(() -> {
 			mediaPlayer.setAudioSpectrumInterval(0.0016);
 			duration = mediaPlayer.getMedia().getDuration();
-			
-			Line line = new Line(SLIDER_X, SLIDER_Y, SLIDER_X+SLIDER_WIDTH, SLIDER_Y);
+
+			Line line = new Line(SLIDER_X, SLIDER_Y, SLIDER_X + SLIDER_WIDTH, SLIDER_Y);
 			keyframePane.getChildren().add(line);
-			
+
 			Keyframe newKeyframe;
 			newKeyframe = new Keyframe(circleTranslates, new Duration(0));
 			timeline.add(newKeyframe);
@@ -399,7 +399,7 @@ public class WorkViewController {
 			newKeyframe = new Keyframe(circleTranslates, duration);
 			timeline.add(newKeyframe);
 			addKeyframePane(newKeyframe);
-			
+
 			groupToggle.setDisable(false);
 			addToggle.setDisable(false);
 			deleteToggle.setDisable(false);
