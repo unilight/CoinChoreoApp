@@ -7,10 +7,10 @@ import java.util.List;
 import control.MainApp;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.NumberBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
@@ -76,10 +76,10 @@ public class WorkViewController {
 
 	private double orgSceneX, orgSceneY;
 
-	// Timeline timeline = new Timeline();
-
-	private List<Keyframe> timeline = new ArrayList<Keyframe>();
-
+	private ObservableList<Keyframe> timeline = FXCollections.observableArrayList();
+	
+	
+	
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
 	Media media;

@@ -8,6 +8,7 @@ import javafx.util.Duration;
 
 public class Keyframe {
 	
+	private Circle paneCircle;
 	private List<CircleTranslate> circleTranslates;
 	private Duration time;
 	
@@ -18,6 +19,14 @@ public class Keyframe {
 			this.circleTranslates.add(element);
 		}
 		this.time = time;
+	}
+
+	public Circle getPaneCircle() {
+		return paneCircle;
+	}
+
+	public void setPaneCircle(Circle paneCircle) {
+		this.paneCircle = paneCircle;
 	}
 
 	public Duration getTime() {
