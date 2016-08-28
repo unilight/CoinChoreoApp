@@ -611,9 +611,15 @@ public class WorkViewController {
 
 	@FXML
 	public void stopMusic() {
-		mediaPlayer.stop();
 		Status status = mediaPlayer.getStatus();
 		System.out.println(status.toString());
+		
+		Duration oldTime = mediaPlayer.getCurrentTime();
+		mediaPlayer.seek(DURATION_BEGIN);
+		if (!(status == Status.PAUSED || status == Status.READY || status == Status.STOPPED)) {
+			mediaPlayer.pause();
+		}		
+		while(mediaPlayer.getCurrentTime().toMillis() == oldTime.toMillis()){}
 		updateValues();
 		groupToggle.setDisable(false);
 		addToggle.setDisable(false);
