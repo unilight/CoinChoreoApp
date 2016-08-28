@@ -4,6 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.media.jai.UnpackedImageData;
+
+import com.apple.eawt.AppEvent.PrintFilesEvent;
+
 import control.MainApp;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -47,7 +51,7 @@ public class WorkViewController {
 	public final static int KEYFRAME_CIRCLE_RADIUS = 4;
 	public final static int SLIDER_WIDTH = 625;
 	public final static int SLIDER_X = 18;
-	public final static int SLIDER_Y = 5;
+	public final static int SLIDER_Y = 8;
 	public final static int SELECT_RADIUS = 12;
 	public final static int LINE_WIDTH = 2;
 	public final static int ERASE_WIDTH = 5;
@@ -189,8 +193,7 @@ public class WorkViewController {
 				drawPane.getChildren().addAll(circle, path);
 
 				for (int i = 0; i < timeline.size(); i++) {
-					CircleTranslate newCircleTranslate = new CircleTranslate(circleTranslate.getIndex(),
-							circleTranslate.getTranslateX(), circleTranslate.getTranslateY());
+					CircleTranslate newCircleTranslate = new CircleTranslate(circleTranslate.getIndex(), circleTranslate.getTranslateX(), circleTranslate.getTranslateY());
 					timeline.get(i).getCircleTranslates().add(newCircleTranslate);
 				}
 				listTimeline();
@@ -215,12 +218,14 @@ public class WorkViewController {
 	private void addKeyframePane(Keyframe newKeyFrame) {
 		double keyframeTime = newKeyFrame.getTime().toMillis();
 		double x = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis();
-		Circle circle = new Circle(x, SLIDER_Y, KEYFRAME_CIRCLE_RADIUS, Color.GOLD);
-		circle.setStroke(Color.BLACK);
-		circle.setStrokeType(StrokeType.OUTSIDE);
-		circle.setStrokeWidth(1);
-		newKeyFrame.setPaneCircle(circle);
-		keyframePane.getChildren().add(circle);
+		Circle paneCircle = new Circle(x, SLIDER_Y, KEYFRAME_CIRCLE_RADIUS, Color.GOLD);
+		paneCircle.setStroke(Color.BLACK);
+		paneCircle.setStrokeType(StrokeType.OUTSIDE);
+		paneCircle.setStrokeWidth(1);
+		paneCircle.setOnMouseMoved(paneCircleOnMouseMovedEventHandler);
+		paneCircle.setOnMousePressed(paneCircleOnMousePressedEventHandler);
+		newKeyFrame.setPaneCircle(paneCircle);
+		keyframePane.getChildren().add(paneCircle);
 	}
 
 	private void listTimeline() {
@@ -233,8 +238,7 @@ public class WorkViewController {
 	private void listCircleTranslates() {
 		System.out.println("====CircleTrans========");
 		for (int i = 0; i < circleTranslates.size(); i++) {
-			System.out.print(circleTranslates.get(i).getIndex() + "\t" + circleTranslates.get(i).getTranslateX() + " "
-					+ circleTranslates.get(i).getTranslateY() + "\t");
+			System.out.print(circleTranslates.get(i).getIndex() + "\t" + circleTranslates.get(i).getTranslateX() + " " + circleTranslates.get(i).getTranslateY() + "\t");
 		}
 		System.out.println("");
 	}
@@ -263,6 +267,47 @@ public class WorkViewController {
 		return path;
 	}
 
+	EventHandler<MouseEvent> paneCircleOnMouseMovedEventHandler = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent t) {
+			((Circle) t.getSource()).setCursor(Cursor.HAND);
+		}
+	};
+	EventHandler<MouseEvent> paneCircleOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent e) {
+			int i = 0;
+			double time = 0;
+			for (Keyframe keyframe : timeline) {
+				if (e.getTarget() == keyframe.getPaneCircle()) {
+					time = keyframe.getTime().toMillis();
+					break;
+				}
+			}
+			Duration newTime = duration.multiply(time / duration.toMillis());
+			Duration oldTime = mediaPlayer.getCurrentTime();
+			mediaPlayer.seek(newTime);
+			while (mediaPlayer.getCurrentTime().toMillis() == oldTime.toMillis()) {
+				i++;
+				if (i > 100) {
+					break;
+				}
+			}
+			updateValues();
+
+		}
+	};
+
+	EventHandler<MouseEvent> circleOnMouseMovedEventHandler = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent t) {
+			if (deleteToggle.isSelected()) {
+				((Circle) t.getSource()).setCursor(Cursor.HAND);
+			} else if (!addToggle.isSelected()) {
+				((Circle) t.getSource()).setCursor(Cursor.OPEN_HAND);
+			}
+		}
+	};
 	EventHandler<MouseEvent> circleOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent t) {
@@ -297,19 +342,7 @@ public class WorkViewController {
 			// circleTranslates.get(index).setTranslateY(circle.getTranslateY());
 
 			// orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
-			System.out.format("orgTranslateX:%f, orgTranslateY:%f\n", circleTranslates.get(index).getTranslateX(),
-					circleTranslates.get(index).getTranslateY());
-		}
-	};
-
-	EventHandler<MouseEvent> circleOnMouseMovedEventHandler = new EventHandler<MouseEvent>() {
-		@Override
-		public void handle(MouseEvent t) {
-			if (deleteToggle.isSelected()) {
-				((Circle) t.getSource()).setCursor(Cursor.HAND);
-			} else if (!addToggle.isSelected()) {
-				((Circle) t.getSource()).setCursor(Cursor.OPEN_HAND);
-			}
+			System.out.format("orgTranslateX:%f, orgTranslateY:%f\n", circleTranslates.get(index).getTranslateX(), circleTranslates.get(index).getTranslateY());
 		}
 	};
 
@@ -429,32 +462,30 @@ public class WorkViewController {
 	}
 
 	public void updateValues() {
-		if (time != null) {
-			Status status = mediaPlayer.getStatus();
-			Duration currentTime = mediaPlayer.getCurrentTime();
-			System.out.println(currentTime.toMillis());
+		Status status = mediaPlayer.getStatus();
+		Duration currentTime = mediaPlayer.getCurrentTime();
+		System.out.println(currentTime.toMillis());
 
-			if (status == Status.PLAYING) {
-				if (currentTime.equals(duration)) {
-					mediaPlayer.pause();
-					currentTime = mediaPlayer.getCurrentTime();
-				}
+		if (status == Status.PLAYING) {
+			if (currentTime.equals(duration)) {
+				mediaPlayer.pause();
+				currentTime = mediaPlayer.getCurrentTime();
 			}
-			time.setText(formatTime(currentTime));
-			slider.setDisable(duration.isUnknown());
-			if (!slider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slider.isValueChanging()) {
-				slider.setValue((currentTime.toMillis() / duration.toMillis()) * 100.0);
-			}
-
-			for (int i = 1; i < timeline.size(); i++) {
-				if (timeline.get(i).getTime().toMillis() > currentTime.toMillis()) {
-					deepCopyCircleTranslates(timeline.get(i - 1));
-					interpolateTranslates(currentTime);
-					break;
-				}
-			}
-			// listCircleTranslates();
 		}
+		time.setText(formatTime(currentTime));
+		slider.setDisable(duration.isUnknown());
+		if (!slider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slider.isValueChanging()) {
+			slider.setValue((currentTime.toMillis() / duration.toMillis()) * 100.0);
+		}
+
+		for (int i = 1; i < timeline.size(); i++) {
+			if (timeline.get(i).getTime().toMillis() > currentTime.toMillis()) {
+				deepCopyCircleTranslates(timeline.get(i - 1));
+				interpolateTranslates(currentTime);
+				break;
+			}
+		}
+		// listCircleTranslates();
 	}
 
 	private void interpolateTranslates(Duration currentTime) {
@@ -475,14 +506,10 @@ public class WorkViewController {
 		for (CircleTranslate circleTranslate : circleTranslates) {
 			int index = circleTranslate.getIndex();
 			double ratio = (currentTime.toMillis() - currentKeyframeTime) / (nextKeyframeTime - currentKeyframeTime);
-			double currentKfTransX = timeline.get(currentKeyframeIndex).getCircleTranslateByIndex(index)
-					.getTranslateX();
-			double currentKfTransY = timeline.get(currentKeyframeIndex).getCircleTranslateByIndex(index)
-					.getTranslateY();
-			double nextKfTransX = timeline.get(currentKeyframeIndex + 1).getCircleTranslateByIndex(index)
-					.getTranslateX();
-			double nextKfTransY = timeline.get(currentKeyframeIndex + 1).getCircleTranslateByIndex(index)
-					.getTranslateY();
+			double currentKfTransX = timeline.get(currentKeyframeIndex).getCircleTranslateByIndex(index).getTranslateX();
+			double currentKfTransY = timeline.get(currentKeyframeIndex).getCircleTranslateByIndex(index).getTranslateY();
+			double nextKfTransX = timeline.get(currentKeyframeIndex + 1).getCircleTranslateByIndex(index).getTranslateX();
+			double nextKfTransY = timeline.get(currentKeyframeIndex + 1).getCircleTranslateByIndex(index).getTranslateY();
 			double newTransX = circleTranslate.getTranslateX() + (nextKfTransX - currentKfTransX) * ratio;
 			double newTransY = circleTranslate.getTranslateY() + (nextKfTransY - currentKfTransY) * ratio;
 			circleTranslate.setTranslateX(newTransX);
@@ -587,6 +614,7 @@ public class WorkViewController {
 		mediaPlayer.stop();
 		Status status = mediaPlayer.getStatus();
 		System.out.println(status.toString());
+		updateValues();
 		groupToggle.setDisable(false);
 		addToggle.setDisable(false);
 		deleteToggle.setDisable(false);
