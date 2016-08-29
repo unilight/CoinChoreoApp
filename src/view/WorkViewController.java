@@ -4,10 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.media.jai.UnpackedImageData;
-
-import com.apple.eawt.AppEvent.PrintFilesEvent;
-
 import control.MainApp;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -54,7 +50,6 @@ public class WorkViewController {
 	public final static int SLIDER_Y = 8;
 	public final static int SELECT_RADIUS = 12;
 	public final static int LINE_WIDTH = 2;
-	public final static int ERASE_WIDTH = 5;
 	public final static int PANE_WIDTH = 720;
 	public final static int PANE_HEIGHT = 480;
 	public final static Duration DURATION_BEGIN = new Duration(-1);
