@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
@@ -19,8 +20,8 @@
                     </columnConstraints>
                     <rowConstraints>
                         <RowConstraints maxHeight="91.0" minHeight="10.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="-Infinity" minHeight="15.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="-Infinity" minHeight="15.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="26.163753509521484" minHeight="15.0" prefHeight="24.795310974121094" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="24.836246490478516" minHeight="15.0" prefHeight="20.204689025878906" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="166.0" minHeight="10.0" prefHeight="162.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
@@ -104,13 +105,30 @@
                         </GridPane>
                         <GridPane GridPane.rowIndex="2">
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                              <ColumnConstraints hgrow="ALWAYS" maxWidth="682.1637573242188" minWidth="10.0" prefWidth="655.71337890625" />
+                              <ColumnConstraints maxWidth="68.4443359375" minWidth="35.83624267578125" prefWidth="62.28662109375" />
                           </columnConstraints>
                           <rowConstraints>
                               <RowConstraints />
                           </rowConstraints>
                            <children>
                               <AnchorPane fx:id="keyframePane" minHeight="-Infinity" GridPane.hgrow="ALWAYS" />
+                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="&lt;" GridPane.columnIndex="1" GridPane.halignment="LEFT">
+                                 <font>
+                                    <Font size="7.0" />
+                                 </font>
+                                 <GridPane.margin>
+                                    <Insets left="15.0" />
+                                 </GridPane.margin>
+                              </Button>
+                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+                                 <font>
+                                    <Font size="7.0" />
+                                 </font>
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
+                              </Button>
                            </children>
                         </GridPane>
                         <MenuBar>
@@ -135,14 +153,14 @@
                         </MenuBar>
                         <GridPane GridPane.rowIndex="1">
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="661.3261108398438" minWidth="10.0" prefWidth="661.3261108398438" />
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="176.3070068359375" minWidth="10.0" prefWidth="56.67388916015625" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="661.0" minWidth="10.0" prefWidth="661.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="57.0" minWidth="10.0" prefWidth="57.0" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <children>
-                              <Slider fx:id="slider" prefHeight="16.0" prefWidth="598.0">
+                              <Slider fx:id="slider" onDragDone="#printX" prefHeight="16.0" prefWidth="598.0">
                                  <GridPane.margin>
                                     <Insets />
                                  </GridPane.margin>
