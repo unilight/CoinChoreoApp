@@ -690,7 +690,7 @@ public class WorkViewController {
 			x[i] = circle.getCenterX() + circleTranslates.get(index).getTranslateX();
 		}
 		Arrays.sort(x);
-		if (size % 2 == 1) { 		// 奇數：對齊最中間的人
+		if (size % 2 == 1) { // 奇數：對齊最中間的人
 			alignX = x[size / 2];
 		} else if (size % 2 == 0) { // 偶數：對齊中間兩個人的中線
 			alignX = (x[size / 2 - 1] + x[size / 2]) / 2;
@@ -703,10 +703,20 @@ public class WorkViewController {
 	}
 
 	@FXML
+	public void alignStageVertical() {
+		double alignX = PANE_WIDTH / 2;
+		for (Circle circle : groupedCircles) {
+			int index = curProj.getDancerIndex(circle);
+			double orgX = circle.getCenterX();
+			circleTranslates.get(index).setTranslateX(alignX - orgX);
+		}
+	}
+
+	@FXML
 	public void alignHorizontal() {
 		int size = groupedCircles.size();
 		double alignY = 0;
-		double[] y= new double[size];
+		double[] y = new double[size];
 		if (size < 2) {
 			return;
 		}
@@ -716,7 +726,7 @@ public class WorkViewController {
 			y[i] = circle.getCenterY() + circleTranslates.get(index).getTranslateY();
 		}
 		Arrays.sort(y);
-		if (size % 2 == 1) { 		// 奇數：對齊最中間的人
+		if (size % 2 == 1) { // 奇數：對齊最中間的人
 			alignY = y[size / 2];
 		} else if (size % 2 == 0) { // 偶數：對齊中間兩個人的中線
 			alignY = (y[size / 2 - 1] + y[size / 2]) / 2;
@@ -726,7 +736,16 @@ public class WorkViewController {
 			double orgY = circle.getCenterY();
 			circleTranslates.get(index).setTranslateY(alignY - orgY);
 		}
+	}
 
+	@FXML
+	public void alignStageHorizontal() {
+		double alignY = PANE_HEIGHT / 4;
+		for (Circle circle : groupedCircles) {
+			int index = curProj.getDancerIndex(circle);
+			double orgY = circle.getCenterY();
+			circleTranslates.get(index).setTranslateY(alignY - orgY);
+		}
 	}
 
 }
