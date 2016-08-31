@@ -726,7 +726,7 @@ public class WorkViewController {
 			y[i] = circle.getCenterY() + circleTranslates.get(index).getTranslateY();
 		}
 		Arrays.sort(y);
-		if (size % 2 == 1) { // 奇數：對齊最中間的人
+		if (size % 2 == 1) { 		// 奇數：對齊最中間的人
 			alignY = y[size / 2];
 		} else if (size % 2 == 0) { // 偶數：對齊中間兩個人的中線
 			alignY = (y[size / 2 - 1] + y[size / 2]) / 2;
