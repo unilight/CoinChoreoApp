@@ -747,5 +747,35 @@ public class WorkViewController {
 			circleTranslates.get(index).setTranslateY(alignY - orgY);
 		}
 	}
-
+	@FXML
+	public void divergeVertical() {
+		int size = groupedCircles.size();
+		double leftX=0;
+		double rightX=0;
+		double[] x = new double[size];
+		if (size < 3) {
+			return;
+		}
+		for (int i = 0; i < size; i++) {
+			Circle circle = groupedCircles.get(i);
+			int index = curProj.getDancerIndex(circle);
+			x[i] = circle.getCenterX() + circleTranslates.get(index).getTranslateX();
+		}
+		Arrays.sort(x);
+		leftX = x[0];
+		rightX = x[size-1];
+		for(int i=1; i<size-1; i++){
+			
+		}
+		
+		
+		for (Circle circle : groupedCircles) {
+			int index = curProj.getDancerIndex(circle);
+			double orgX = circle.getCenterX();
+			
+			
+			double targetX = ;
+			circleTranslates.get(index).setTranslateX(targetX - orgX);
+		}
+	}
 }
