@@ -38,8 +38,11 @@ import javafx.scene.shape.StrokeType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
 import java.lang.Math;
 import model.Proj;
+import utils.DancerComparatorByX;
+import utils.DancerCompareType;
 import model.CircleTranslate;
 import model.Dancer;
 import model.IndexManager;
@@ -752,30 +755,32 @@ public class WorkViewController {
 		int size = groupedCircles.size();
 		double leftX=0;
 		double rightX=0;
-		double[] x = new double[size];
+		double spacing=0;
+		DancerCompareType[] x_dancers = new DancerCompareType[size];
 		if (size < 3) {
 			return;
 		}
 		for (int i = 0; i < size; i++) {
 			Circle circle = groupedCircles.get(i);
 			int index = curProj.getDancerIndex(circle);
-			x[i] = circle.getCenterX() + circleTranslates.get(index).getTranslateX();
+			x_dancers[i]= new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
 		}
-		Arrays.sort(x);
-		leftX = x[0];
-		rightX = x[size-1];
+		Arrays.sort(x_dancers, new DancerComparatorByX());
+		leftX = x_dancers[0].x;
+		rightX = x_dancers[size-1].x;
+		spacing = (rightX-leftX)/(size-1); // 間距
 		for(int i=1; i<size-1; i++){
-			
-		}
-		
-		
-		for (Circle circle : groupedCircles) {
-			int index = curProj.getDancerIndex(circle);
-			double orgX = circle.getCenterX();
-			
-			
-			double targetX = ;
-			circleTranslates.get(index).setTranslateX(targetX - orgX);
+			int index = x_dancers[i].index;
+			double orgX=0;
+			double targetX = leftX+spacing*i;
+			// 先得到該index的circle
+			for (Circle circle : groupedCircles) {
+				if(curProj.getDancerIndex(circle) == index){
+					orgX = circle.getCenterX();
+				}
+			}
+			// 再去做設定
+			circleTranslates.get(x_dancers[i].index).setTranslateX(targetX - orgX);
 		}
 	}
 }
