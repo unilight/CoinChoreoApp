@@ -1,7 +1,5 @@
 package utils;
 
-import java.util.Comparator;
-
 public class DancerCompareType {
 
 	public int index;
@@ -14,4 +12,3 @@ public class DancerCompareType {
 		this.y = y;
 	}
 }
-

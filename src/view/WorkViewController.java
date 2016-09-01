@@ -42,6 +42,7 @@ import javafx.util.Duration;
 import java.lang.Math;
 import model.Proj;
 import utils.DancerComparatorByX;
+import utils.DancerComparatorByY;
 import utils.DancerCompareType;
 import model.CircleTranslate;
 import model.Dancer;
@@ -750,37 +751,134 @@ public class WorkViewController {
 			circleTranslates.get(index).setTranslateY(alignY - orgY);
 		}
 	}
+
 	@FXML
 	public void divergeVertical() {
 		int size = groupedCircles.size();
-		double leftX=0;
-		double rightX=0;
-		double spacing=0;
-		DancerCompareType[] x_dancers = new DancerCompareType[size];
+		double leftX = 0;
+		double rightX = 0;
+		double spacing = 0;
+		DancerCompareType[] xDancerCompares = new DancerCompareType[size];
 		if (size < 3) {
 			return;
 		}
 		for (int i = 0; i < size; i++) {
 			Circle circle = groupedCircles.get(i);
 			int index = curProj.getDancerIndex(circle);
-			x_dancers[i]= new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
+			xDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
 		}
-		Arrays.sort(x_dancers, new DancerComparatorByX());
-		leftX = x_dancers[0].x;
-		rightX = x_dancers[size-1].x;
-		spacing = (rightX-leftX)/(size-1); // 間距
-		for(int i=1; i<size-1; i++){
-			int index = x_dancers[i].index;
-			double orgX=0;
-			double targetX = leftX+spacing*i;
+		Arrays.sort(xDancerCompares, new DancerComparatorByX());
+		leftX = xDancerCompares[0].x;
+		rightX = xDancerCompares[size - 1].x;
+		spacing = (rightX - leftX) / (size - 1); // 間距
+		for (int i = 1; i < size - 1; i++) {
+			int index = xDancerCompares[i].index;
+			double orgX = 0;
+			double targetX = leftX + spacing * i;
 			// 先得到該index的circle
 			for (Circle circle : groupedCircles) {
-				if(curProj.getDancerIndex(circle) == index){
+				if (curProj.getDancerIndex(circle) == index) {
 					orgX = circle.getCenterX();
 				}
 			}
 			// 再去做設定
-			circleTranslates.get(x_dancers[i].index).setTranslateX(targetX - orgX);
+			circleTranslates.get(xDancerCompares[i].index).setTranslateX(targetX - orgX);
+		}
+	}
+
+	@FXML
+	public void divergeStageVertical() {
+		int size = groupedCircles.size();
+		double leftX = 0;
+		double rightX = PANE_WIDTH;
+		double spacing = (rightX - leftX) / (size + 1); // 間距
+		DancerCompareType[] xDancerCompares = new DancerCompareType[size];
+		if (size < 2) {
+			return;
+		}
+		for (int i = 0; i < size; i++) {
+			Circle circle = groupedCircles.get(i);
+			int index = curProj.getDancerIndex(circle);
+			xDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
+		}
+		Arrays.sort(xDancerCompares, new DancerComparatorByX());
+		for (int i = 0; i < size; i++) {
+			int index = xDancerCompares[i].index;
+			double orgX = 0;
+			double targetX = leftX + spacing * (i + 1);
+			// 先得到該index的circle
+			for (Circle circle : groupedCircles) {
+				if (curProj.getDancerIndex(circle) == index) {
+					orgX = circle.getCenterX();
+				}
+			}
+			// 再去做設定
+			circleTranslates.get(xDancerCompares[i].index).setTranslateX(targetX - orgX);
+		}
+	}
+
+	@FXML
+	public void divergeStageHorizontal() {
+		int size = groupedCircles.size();
+		double upY = 0;
+		double downY = PANE_HEIGHT / 2;
+		double spacing = (downY - upY) / (size + 1); // 間距
+		DancerCompareType[] yDancerCompares = new DancerCompareType[size];
+		if (size < 2) {
+			return;
+		}
+		for (int i = 0; i < size; i++) {
+			Circle circle = groupedCircles.get(i);
+			int index = curProj.getDancerIndex(circle);
+			yDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
+		}
+		Arrays.sort(yDancerCompares, new DancerComparatorByY());
+		for (int i = 0; i < size; i++) {
+			int index = yDancerCompares[i].index;
+			double orgY = 0;
+			double targetY = upY + spacing * (i + 1);
+			// 先得到該index的circle
+			for (Circle circle : groupedCircles) {
+				if (curProj.getDancerIndex(circle) == index) {
+					orgY = circle.getCenterY();
+				}
+			}
+			// 再去做設定
+			circleTranslates.get(yDancerCompares[i].index).setTranslateY(targetY - orgY);
+		}
+	}
+
+	@FXML
+	public void divergeHorizontal() {
+		int size = groupedCircles.size();
+		double upY = 0;
+		double downY = 0;
+		double spacing = 0;
+		DancerCompareType[] yDancerCompares = new DancerCompareType[size];
+		if (size < 3) {
+			return;
+		}
+		for (int i = 0; i < size; i++) {
+			Circle circle = groupedCircles.get(i);
+			int index = curProj.getDancerIndex(circle);
+			yDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
+		}
+		Arrays.sort(yDancerCompares, new DancerComparatorByY());
+		upY = yDancerCompares[0].y;
+		downY = yDancerCompares[size - 1].y;
+		spacing = (downY - upY) / (size - 1); // 間距
+		for (int i = 1; i < size - 1; i++) {
+			int index = yDancerCompares[i].index;
+			double orgY = 0;
+			double targetY = upY + spacing * i;
+			// 先得到該index的circle
+			for (Circle circle : groupedCircles) {
+				if (curProj.getDancerIndex(circle) == index) {
+					orgY = circle.getCenterY();
+				}
+			}
+			// 再去做設定
+			circleTranslates.get(yDancerCompares[i].index).setTranslateY(targetY - orgY);
 		}
 	}
 }

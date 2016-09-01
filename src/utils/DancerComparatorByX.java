@@ -12,5 +12,4 @@ public class DancerComparatorByX implements Comparator<DancerCompareType> {
 		}
 		return (o1.x - o2.x > 0) ? 1 : -1;
 	}
-
 }
