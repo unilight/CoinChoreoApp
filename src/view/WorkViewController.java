@@ -901,7 +901,7 @@ public class WorkViewController {
 		try {
 			// Load the fxml file and create a new stage for the popup dialog.
 			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(MainApp.class.getResource("../view/AutoForm"+autoFormType+"View.fxml"));
+			loader.setLocation(MainApp.class.getResource("../view/AutoForm" + autoFormType + "View.fxml"));
 			AnchorPane pane = (AnchorPane) loader.load();
 
 			// Create the dialog Stage.
@@ -920,11 +920,23 @@ public class WorkViewController {
 			autoFormStage.showAndWait();
 
 			System.out.println("returning");
-			//return controller.isCreateClicked();
+			realAutoForm(controller.getArgs());
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void realAutoForm(List<String> args){
+		String autoFormType = autoFormCombobox.getValue();
+		if(autoFormType == AUTOFORMS.get(0)){
+			String position = args.get(0);
+			String size = args.get(1);
+			if(position == AutoFormViewController.CLOSE && size == AutoFormViewController.CLOSE){
+				return;
+			}
+		}
+		
 	}
 
 }
