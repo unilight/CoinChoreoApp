@@ -1,6 +1,7 @@
 package view;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +16,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -37,6 +40,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -62,6 +66,7 @@ public class WorkViewController {
 	public final static int PANE_WIDTH = 720;
 	public final static int PANE_HEIGHT = 480;
 	public final static Duration DURATION_BEGIN = new Duration(-1);
+	private static final List<String> AUTOFORMS = Arrays.asList("V", "Circle", "Rectangle");
 
 	@FXML
 	private Label time;
@@ -93,7 +98,7 @@ public class WorkViewController {
 	private double orgSceneX, orgSceneY;
 
 	private ObservableList<Keyframe> timeline = FXCollections.observableArrayList();
-	
+
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
 	Media media;
@@ -110,9 +115,10 @@ public class WorkViewController {
 		groupToggle.setDisable(true);
 		addToggle.setDisable(true);
 		deleteToggle.setDisable(true);
-		
+
 		// Combobox
-		autoFormCombobox.getItems().addAll("V","Circle","Rectangle");
+		autoFormCombobox.getItems().addAll(AUTOFORMS);
+		autoFormCombobox.setValue(AUTOFORMS.get(0));
 	}
 
 	public WorkViewController() {
@@ -737,7 +743,7 @@ public class WorkViewController {
 			y[i] = circle.getCenterY() + circleTranslates.get(index).getTranslateY();
 		}
 		Arrays.sort(y);
-		if (size % 2 == 1) { 		// 奇數：對齊最中間的人
+		if (size % 2 == 1) { // 奇數：對齊最中間的人
 			alignY = y[size / 2];
 		} else if (size % 2 == 0) { // 偶數：對齊中間兩個人的中線
 			alignY = (y[size / 2 - 1] + y[size / 2]) / 2;
@@ -888,4 +894,37 @@ public class WorkViewController {
 			circleTranslates.get(yDancerCompares[i].index).setTranslateY(targetY - orgY);
 		}
 	}
+
+	@FXML
+	public void showAutoForm() {
+		String autoFormType = autoFormCombobox.getValue();
+		try {
+			// Load the fxml file and create a new stage for the popup dialog.
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("../view/AutoForm"+autoFormType+"View.fxml"));
+			AnchorPane pane = (AnchorPane) loader.load();
+
+			// Create the dialog Stage.
+			Stage autoFormStage = new Stage();
+			autoFormStage.setTitle("Auto Form");
+			autoFormStage.initModality(Modality.WINDOW_MODAL);
+			autoFormStage.setResizable(false);
+			Scene newScene = new Scene(pane);
+			autoFormStage.setScene(newScene);
+
+			// Set the controller.
+			AutoFormVViewController controller = loader.getController();
+			controller.setStage(autoFormStage);
+
+			// Show the dialog and wait until the user closes it
+			autoFormStage.showAndWait();
+
+			System.out.println("returning");
+			//return controller.isCreateClicked();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

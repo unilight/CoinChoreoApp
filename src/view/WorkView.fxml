@@ -115,7 +115,7 @@
                                 </rowConstraints>
                                  <children>
                                     <Label text="Auto Generate:" />
-                                    <Button mnemonicParsing="false" text="Generate" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                                    <Button mnemonicParsing="false" onAction="#showAutoForm" text="Generate" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
                                     <ComboBox fx:id="autoFormCombobox" prefWidth="150.0" promptText="V" GridPane.columnIndex="1" />
                                  </children>
                               </GridPane>
