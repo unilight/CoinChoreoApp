@@ -118,7 +118,6 @@ public class MainApp extends Application {
         	assert(controller != null);
             controller.setMainApp(this);
             controller.setProj(new Proj(_num));
-            System.out.print("Set to mainApp.\n");
             
         } catch (IOException e) {
             e.printStackTrace();

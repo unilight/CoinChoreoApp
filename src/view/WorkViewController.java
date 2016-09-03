@@ -16,6 +16,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -79,6 +80,8 @@ public class WorkViewController {
 	private AnchorPane drawPane;
 	@FXML
 	private AnchorPane keyframePane;
+	@FXML
+	public ComboBox<String> autoFormCombobox;
 
 	private Proj curProj;
 
@@ -90,7 +93,7 @@ public class WorkViewController {
 	private double orgSceneX, orgSceneY;
 
 	private ObservableList<Keyframe> timeline = FXCollections.observableArrayList();
-
+	
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
 	Media media;
@@ -103,9 +106,13 @@ public class WorkViewController {
 
 	@FXML
 	private void initialize() {
+		// Toggle Buttons
 		groupToggle.setDisable(true);
 		addToggle.setDisable(true);
 		deleteToggle.setDisable(true);
+		
+		// Combobox
+		autoFormCombobox.getItems().addAll("V","Circle","Rectangle");
 	}
 
 	public WorkViewController() {
