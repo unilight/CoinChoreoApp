@@ -131,6 +131,21 @@ public class WorkViewController {
 		// Combobox
 		autoFormCombobox.getItems().addAll(AUTOFORMS);
 		autoFormCombobox.setValue(AUTOFORMS.get(0));
+
+		// Ruler: 8 x 4
+		for (int i = 1; i <= 7; i++) {
+			Line ruler = new Line(PANE_WIDTH / 8 * i, 0, PANE_WIDTH / 8 * i, PANE_HEIGHT / 2);
+			ruler.setStrokeWidth(2);
+			ruler.setStroke(Color.LIGHTGRAY);
+			drawPane.getChildren().add(ruler);
+		}
+		for (int i = 1; i <= 3; i++) {
+			Line ruler = new Line(0, PANE_HEIGHT / 2 / 4 * i, PANE_WIDTH, PANE_HEIGHT / 2 / 4 * i);
+			ruler.setStrokeWidth(2);
+			ruler.setStroke(Color.LIGHTGRAY);
+			drawPane.getChildren().add(ruler);
+		}
+
 	}
 
 	public WorkViewController() {
