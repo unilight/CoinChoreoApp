@@ -26,7 +26,7 @@ public class AutoFormVViewController extends AutoFormViewController{
 		positionCombobox.getItems().addAll(POSITIONS);
 		positionCombobox.setValue(POSITIONS.get(0));
 		sizeCombobox.getItems().addAll(SIZES);
-		sizeCombobox.setValue(SIZES.get(0));
+		sizeCombobox.setValue(SIZES.get(1));
 	}
 
 	public AutoFormVViewController() {

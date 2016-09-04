@@ -68,6 +68,18 @@ public class WorkViewController {
 	public final static Duration DURATION_BEGIN = new Duration(-1);
 	private static final List<String> AUTOFORMS = Arrays.asList("V", "Circle", "Rectangle");
 
+	private static enum ORIENT {
+		X, Y
+	};
+
+	private static enum ORIENT_DIAG {
+		SLASH, BACKSLASH
+	};
+
+	private static enum ORIENT_WARD {
+		DOWNWARD, UPWARD
+	}
+
 	@FXML
 	private Label time;
 	@FXML
@@ -209,7 +221,8 @@ public class WorkViewController {
 				drawPane.getChildren().addAll(circle, path);
 
 				for (int i = 0; i < timeline.size(); i++) {
-					CircleTranslate newCircleTranslate = new CircleTranslate(circleTranslate.getIndex(), circleTranslate.getTranslateX(), circleTranslate.getTranslateY());
+					CircleTranslate newCircleTranslate = new CircleTranslate(circleTranslate.getIndex(), circleTranslate.getTranslateX(),
+							circleTranslate.getTranslateY());
 					timeline.get(i).getCircleTranslates().add(newCircleTranslate);
 				}
 				listTimeline();
@@ -310,7 +323,8 @@ public class WorkViewController {
 	private void listCircleTranslates() {
 		System.out.println("====CircleTrans========");
 		for (int i = 0; i < circleTranslates.size(); i++) {
-			System.out.print(circleTranslates.get(i).getIndex() + "\t" + circleTranslates.get(i).getTranslateX() + " " + circleTranslates.get(i).getTranslateY() + "\t");
+			System.out.print(circleTranslates.get(i).getIndex() + "\t" + circleTranslates.get(i).getTranslateX() + " "
+					+ circleTranslates.get(i).getTranslateY() + "\t");
 		}
 		System.out.println("");
 	}
@@ -390,7 +404,8 @@ public class WorkViewController {
 			// circleTranslates.get(index).setTranslateY(circle.getTranslateY());
 
 			// orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
-			System.out.format("orgTranslateX:%f, orgTranslateY:%f\n", circleTranslates.get(index).getTranslateX(), circleTranslates.get(index).getTranslateY());
+			System.out.format("orgTranslateX:%f, orgTranslateY:%f\n", circleTranslates.get(index).getTranslateX(),
+					circleTranslates.get(index).getTranslateY());
 		}
 	};
 
@@ -668,8 +683,7 @@ public class WorkViewController {
 		if (!(status == Status.PAUSED || status == Status.READY || status == Status.STOPPED)) {
 			mediaPlayer.pause();
 		}
-		while (mediaPlayer.getCurrentTime().toMillis() == oldTime.toMillis()) {
-		}
+		while (mediaPlayer.getCurrentTime().toMillis() == oldTime.toMillis()) {}
 		updateValues();
 		groupToggle.setDisable(false);
 		addToggle.setDisable(false);
@@ -770,33 +784,14 @@ public class WorkViewController {
 		int size = groupedCircles.size();
 		double leftX = 0;
 		double rightX = 0;
-		double spacing = 0;
 		DancerCompareType[] xDancerCompares = new DancerCompareType[size];
 		if (size < 3) {
 			return;
 		}
-		for (int i = 0; i < size; i++) {
-			Circle circle = groupedCircles.get(i);
-			int index = curProj.getDancerIndex(circle);
-			xDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
-		}
-		Arrays.sort(xDancerCompares, new DancerComparatorByX());
+		xDancerCompares = getSortedGroupedDancers(ORIENT.X);
 		leftX = xDancerCompares[0].x;
 		rightX = xDancerCompares[size - 1].x;
-		spacing = (rightX - leftX) / (size - 1); // 間距
-		for (int i = 1; i < size - 1; i++) {
-			int index = xDancerCompares[i].index;
-			double orgX = 0;
-			double targetX = leftX + spacing * i;
-			// 先得到該index的circle
-			for (Circle circle : groupedCircles) {
-				if (curProj.getDancerIndex(circle) == index) {
-					orgX = circle.getCenterX();
-				}
-			}
-			// 再去做設定
-			circleTranslates.get(xDancerCompares[i].index).setTranslateX(targetX - orgX);
-		}
+		divergeVertical(leftX, rightX, xDancerCompares);
 	}
 
 	@FXML
@@ -812,7 +807,8 @@ public class WorkViewController {
 		for (int i = 0; i < size; i++) {
 			Circle circle = groupedCircles.get(i);
 			int index = curProj.getDancerIndex(circle);
-			xDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
+			xDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(),
+					circle.getCenterY() + circleTranslates.get(index).getTranslateY());
 		}
 		Arrays.sort(xDancerCompares, new DancerComparatorByX());
 		for (int i = 0; i < size; i++) {
@@ -843,7 +839,8 @@ public class WorkViewController {
 		for (int i = 0; i < size; i++) {
 			Circle circle = groupedCircles.get(i);
 			int index = curProj.getDancerIndex(circle);
-			yDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
+			yDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(),
+					circle.getCenterY() + circleTranslates.get(index).getTranslateY());
 		}
 		Arrays.sort(yDancerCompares, new DancerComparatorByY());
 		for (int i = 0; i < size; i++) {
@@ -871,12 +868,7 @@ public class WorkViewController {
 		if (size < 3) {
 			return;
 		}
-		for (int i = 0; i < size; i++) {
-			Circle circle = groupedCircles.get(i);
-			int index = curProj.getDancerIndex(circle);
-			yDancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(), circle.getCenterY() + circleTranslates.get(index).getTranslateY());
-		}
-		Arrays.sort(yDancerCompares, new DancerComparatorByY());
+		yDancerCompares = getSortedGroupedDancers(ORIENT.Y);
 		upY = yDancerCompares[0].y;
 		downY = yDancerCompares[size - 1].y;
 		spacing = (downY - upY) / (size - 1); // 間距
@@ -884,6 +876,49 @@ public class WorkViewController {
 			int index = yDancerCompares[i].index;
 			double orgY = 0;
 			double targetY = upY + spacing * i;
+			// 先得到該index的circle
+			for (Circle circle : groupedCircles) {
+				if (curProj.getDancerIndex(circle) == index) {
+					orgY = circle.getCenterY();
+				}
+			}
+			// 再去做設定
+			circleTranslates.get(yDancerCompares[i].index).setTranslateY(targetY - orgY);
+		}
+	}
+
+	public void divergeVertical(double leftX, double rightX, DancerCompareType[] xDancerCompares) {
+		int size = groupedCircles.size();
+		if (size < 3) {
+			return;
+		}
+		double spacing = (rightX - leftX) / (size - 1); // 間距
+		for (int i = 0; i < size; i++) {
+			int index = xDancerCompares[i].index;
+			double orgX = 0;
+			double targetX = leftX + spacing * i;
+			// 先得到該index的circle
+			for (Circle circle : groupedCircles) {
+				if (curProj.getDancerIndex(circle) == index) {
+					orgX = circle.getCenterX();
+				}
+			}
+			// 再去做設定
+			circleTranslates.get(xDancerCompares[i].index).setTranslateX(targetX - orgX);
+		}
+	}
+
+	public void divergeHorizontal(ORIENT_WARD ward, int start, int end, double upY, double downY, DancerCompareType[] yDancerCompares) {
+		double spacing = (downY - upY) / (end - start); // 間距
+		for (int i = start; i <= end; i++) {
+			int index = yDancerCompares[i].index;
+			double orgY = 0;
+			double targetY = 0;
+			if (ward == ORIENT_WARD.DOWNWARD) {
+				targetY = upY + spacing * (i - start);
+			} else if (ward == ORIENT_WARD.UPWARD) {
+				targetY = downY - spacing * (i - start);
+			}
 			// 先得到該index的circle
 			for (Circle circle : groupedCircles) {
 				if (curProj.getDancerIndex(circle) == index) {
@@ -927,16 +962,105 @@ public class WorkViewController {
 		}
 	}
 
-	private void realAutoForm(List<String> args){
+	private void realAutoForm(List<String> args) {
 		String autoFormType = autoFormCombobox.getValue();
-		if(autoFormType == AUTOFORMS.get(0)){
-			String position = args.get(0);
-			String size = args.get(1);
-			if(position == AutoFormViewController.CLOSE && size == AutoFormViewController.CLOSE){
+		// V
+		if (autoFormType == AUTOFORMS.get(0)) {
+			String posOption = args.get(0);
+			String sizeOption = args.get(1);
+			int size = groupedCircles.size();
+			double orgLeftX = getMostX("LEFT");
+			double orgRightX = getMostX("RIGHT");
+			double orgUpY = getMostY("UP");
+			double orgDownY = getMostY("DOWN");
+			double leftX = 0;
+			double rightX = 0;
+			double upY = 0;
+			double downY = 0;
+			// Check if cancelled or close btn pressed
+			if (posOption == AutoFormViewController.CLOSE && sizeOption == AutoFormViewController.CLOSE) {
 				return;
 			}
+			if (size < 3) {
+				// TODO: POPUP ERROR MESSAGE
+				return;
+			}
+			if (sizeOption == "Current Group") {
+				leftX = orgLeftX;
+				rightX = orgRightX;
+				upY = orgUpY;
+				downY = orgDownY;
+			} else if (sizeOption == "Half Stage") {
+				leftX = PANE_WIDTH / 4;
+				rightX = PANE_WIDTH * 3 / 4;
+				upY = PANE_HEIGHT / 2 / 4;
+				downY = PANE_HEIGHT / 2 * 3 / 4;
+			}
+			if (posOption == "Stage Center") {
+				leftX += PANE_WIDTH / 2 - (rightX + leftX) / 2;
+				rightX += PANE_WIDTH / 2 - (rightX + leftX) / 2;
+				upY += PANE_HEIGHT / 2 / 2 - (downY + upY) / 2;
+				downY += PANE_HEIGHT / 2 / 2 - (downY + upY) / 2;
+			} else if (posOption == "Current Position") {
+				leftX += (orgRightX + orgLeftX) / 2 - (rightX + leftX) / 2;
+				rightX += (orgRightX + orgLeftX) / 2 - (rightX + leftX) / 2;
+				upY += (orgDownY + orgUpY) / 2 - (downY + upY) / 2;
+				downY += (orgDownY + orgUpY) / 2 - (downY + upY) / 2;
+			}
+			DancerCompareType[] sortedDancers = getSortedGroupedDancers(ORIENT.X);
+			divergeVertical(leftX, rightX, sortedDancers);
+			// 奇數
+			if (size % 2 == 1) {
+				divergeHorizontal(ORIENT_WARD.DOWNWARD, 0, size / 2, upY, downY, sortedDancers);
+			}
+			// 偶數
+			else {
+				divergeHorizontal(ORIENT_WARD.DOWNWARD, 0, size / 2 - 1, upY, downY, sortedDancers);
+			}
+			divergeHorizontal(ORIENT_WARD.UPWARD, size / 2, size - 1, upY, downY, sortedDancers);
 		}
-		
+
+	}
+
+	private double getMostX(String orient) {
+		int size = groupedCircles.size();
+		DancerCompareType[] xDancerCompares = getSortedGroupedDancers(ORIENT.X);
+		if (orient == "LEFT") {
+			return xDancerCompares[0].x;
+		} else if (orient == "RIGHT") {
+			return xDancerCompares[size - 1].x;
+		} else {
+			return 0;
+		}
+	}
+
+	private double getMostY(String orient) {
+		int size = groupedCircles.size();
+		DancerCompareType[] yDancerCompares = getSortedGroupedDancers(ORIENT.Y);
+		if (orient == "UP") {
+			return yDancerCompares[0].y;
+		} else if (orient == "DOWN") {
+			return yDancerCompares[size - 1].y;
+		} else {
+			return 0;
+		}
+	}
+
+	private DancerCompareType[] getSortedGroupedDancers(ORIENT orient) {
+		int size = groupedCircles.size();
+		DancerCompareType[] dancerCompares = new DancerCompareType[size];
+		for (int i = 0; i < size; i++) {
+			Circle circle = groupedCircles.get(i);
+			int index = curProj.getDancerIndex(circle);
+			dancerCompares[i] = new DancerCompareType(index, circle.getCenterX() + circleTranslates.get(index).getTranslateX(),
+					circle.getCenterY() + circleTranslates.get(index).getTranslateY());
+		}
+		if (orient == ORIENT.X) {
+			Arrays.sort(dancerCompares, new DancerComparatorByX());
+		} else if (orient == ORIENT.Y) {
+			Arrays.sort(dancerCompares, new DancerComparatorByY());
+		}
+		return dancerCompares;
 	}
 
 }
