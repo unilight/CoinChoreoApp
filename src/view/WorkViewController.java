@@ -132,7 +132,7 @@ public class WorkViewController {
 		autoFormCombobox.getItems().addAll(AUTOFORMS);
 		autoFormCombobox.setValue(AUTOFORMS.get(0));
 
-		// Ruler: 8 x 4
+		// Ruler : 8 x 4
 		for (int i = 1; i <= 7; i++) {
 			Line ruler = new Line(PANE_WIDTH / 8 * i, 0, PANE_WIDTH / 8 * i, PANE_HEIGHT / 2);
 			ruler.setStrokeWidth(2);
