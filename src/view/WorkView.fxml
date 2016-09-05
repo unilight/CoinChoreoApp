@@ -193,7 +193,7 @@
                   </GridPane>
                </children>
             </AnchorPane>
-          <AnchorPane fx:id="drawPane" minHeight="0.0" minWidth="0.0" onMouseClicked="#drawCircle" prefHeight="100.0" prefWidth="160.0" />
+          <AnchorPane fx:id="drawPane" minHeight="0.0" minWidth="0.0" onMouseDragged="#drawPaneOnMouseDragged" onMousePressed="#drawCircle" onMouseReleased="#drawPaneOnMouseRelease" prefHeight="100.0" prefWidth="160.0" />
         </items>
       </SplitPane>
    </children>
