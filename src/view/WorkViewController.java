@@ -18,6 +18,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -285,18 +286,41 @@ public class WorkViewController {
 	public void drawPaneOnMouseDragged(MouseEvent e) {
 		double offsetX = e.getX() - drawPaneOrgSceneX;
 		double offsetY = e.getY() - drawPaneOrgSceneY;
-		if (offsetX > 0)
-			rubberband.setWidth(offsetX);
-		else {
-			rubberband.setX(e.getX());
-			rubberband.setWidth(drawPaneOrgSceneX - rubberband.getX());
-		}
+		if (e.getTarget() instanceof AnchorPane) {
+			if (offsetX > 0)
+				rubberband.setWidth(offsetX);
+			else {
+				rubberband.setX(e.getX());
+				rubberband.setWidth(drawPaneOrgSceneX - rubberband.getX());
+			}
 
-		if (offsetY > 0) {
-			rubberband.setHeight(offsetY);
-		} else {
-			rubberband.setY(e.getY());
-			rubberband.setHeight(drawPaneOrgSceneY - rubberband.getY());
+			if (offsetY > 0) {
+				rubberband.setHeight(offsetY);
+			} else {
+				rubberband.setY(e.getY());
+				rubberband.setHeight(drawPaneOrgSceneY - rubberband.getY());
+			}
+
+			for (Node node : drawPane.getChildren()) {
+				if (node instanceof Circle) {
+					if (// 只要碰到就被加進群組
+					node.getBoundsInParent().intersects(rubberband.getBoundsInParent())
+					// 要整個框起來才加進群組
+					/*
+					 * rubberband.getBoundsInParent().contains(node.
+					 * getBoundsInParent())
+					 */
+					) {
+						if (!(groupedCircles.contains((Circle) node))) {
+							groupedCircles.add((Circle) node);
+							groupedPaths.get(curProj.getDancerIndex((Circle) node)).setVisible(true);
+						}
+					} else {
+						groupedCircles.remove((Circle) node);
+						groupedPaths.get(curProj.getDancerIndex((Circle) node)).setVisible(false);
+					}
+				}
+			}
 		}
 	}
 
