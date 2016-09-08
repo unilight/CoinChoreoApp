@@ -18,6 +18,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -38,6 +39,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -108,8 +111,11 @@ public class WorkViewController {
 	private List<Path> groupedPaths = new ArrayList<Path>();
 
 	private double orgSceneX, orgSceneY;
+	private double drawPaneOrgSceneX, drawPaneOrgSceneY;
 
 	private ObservableList<Keyframe> timeline = FXCollections.observableArrayList();
+
+	private Rectangle rubberband;
 
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
@@ -145,6 +151,13 @@ public class WorkViewController {
 			ruler.setStroke(Color.LIGHTGRAY);
 			drawPane.getChildren().add(ruler);
 		}
+
+		// Rubberband
+		rubberband = new Rectangle(0, 0, 0, 0);
+		rubberband.setStroke(Color.BLUE);
+		rubberband.setStrokeWidth(1);
+		rubberband.setStrokeLineCap(StrokeLineCap.ROUND);
+		rubberband.setFill(Color.LIGHTBLUE.deriveColor(0, 1.2, 1, 0.6));
 
 	}
 
@@ -255,8 +268,70 @@ public class WorkViewController {
 				groupedCircles.clear();
 				// System.out.println(groupedCircles.size()+"");
 			}
-		}
 
+			rubberband.setX(x);
+			rubberband.setY(y);
+			rubberband.setWidth(0);
+			rubberband.setHeight(0);
+
+			drawPane.getChildren().add(rubberband);
+
+			drawPaneOrgSceneX = e.getX();
+			drawPaneOrgSceneY = e.getY();
+
+		}
+	}
+
+	@FXML
+	public void drawPaneOnMouseDragged(MouseEvent e) {
+		double offsetX = e.getX() - drawPaneOrgSceneX;
+		double offsetY = e.getY() - drawPaneOrgSceneY;
+		if (e.getTarget() instanceof AnchorPane) {
+			if (offsetX > 0)
+				rubberband.setWidth(offsetX);
+			else {
+				rubberband.setX(e.getX());
+				rubberband.setWidth(drawPaneOrgSceneX - rubberband.getX());
+			}
+
+			if (offsetY > 0) {
+				rubberband.setHeight(offsetY);
+			} else {
+				rubberband.setY(e.getY());
+				rubberband.setHeight(drawPaneOrgSceneY - rubberband.getY());
+			}
+
+			for (Node node : drawPane.getChildren()) {
+				if (node instanceof Circle) {
+					if (// 只要碰到就被加進群組
+					node.getBoundsInParent().intersects(rubberband.getBoundsInParent())
+					// 要整個框起來才加進群組
+					/*
+					 * rubberband.getBoundsInParent().contains(node.
+					 * getBoundsInParent())
+					 */
+					) {
+						if (!(groupedCircles.contains((Circle) node))) {
+							groupedCircles.add((Circle) node);
+							groupedPaths.get(curProj.getDancerIndex((Circle) node)).setVisible(true);
+						}
+					} else {
+						groupedCircles.remove((Circle) node);
+						groupedPaths.get(curProj.getDancerIndex((Circle) node)).setVisible(false);
+					}
+				}
+			}
+		}
+	}
+
+	@FXML
+	public void drawPaneOnMouseRelease(MouseEvent e) {
+		rubberband.setX(0);
+		rubberband.setY(0);
+		rubberband.setWidth(0);
+		rubberband.setHeight(0);
+
+		drawPane.getChildren().remove(rubberband);
 	}
 
 	private void addKeyframePane(Keyframe newKeyFrame) {
