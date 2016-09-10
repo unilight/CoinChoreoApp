@@ -27,6 +27,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.effect.Bloom;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
@@ -34,6 +35,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.ArcTo;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -66,6 +68,7 @@ public class WorkViewController {
 	public final static int SLIDER_Y = 8;
 	public final static int SELECT_RADIUS = 12;
 	public final static int LINE_WIDTH = 2;
+	public final static int LINE_WIDTH_MAGNET = 4;
 	public final static int PANE_WIDTH = 720;
 	public final static int PANE_HEIGHT = 480;
 	public final static Duration DURATION_BEGIN = new Duration(-1);
@@ -116,6 +119,9 @@ public class WorkViewController {
 	private ObservableList<Keyframe> timeline = FXCollections.observableArrayList();
 
 	private Rectangle rubberband;
+	
+	private List<Line> linesVertical = new ArrayList<Line>();
+	private List<Line> linesHorizontal = new ArrayList<Line>();
 
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
@@ -141,15 +147,17 @@ public class WorkViewController {
 		// Ruler : 8 x 4
 		for (int i = 1; i <= 7; i++) {
 			Line ruler = new Line(PANE_WIDTH / 8 * i, 0, PANE_WIDTH / 8 * i, PANE_HEIGHT / 2);
-			ruler.setStrokeWidth(2);
+			ruler.setStrokeWidth(LINE_WIDTH);
 			ruler.setStroke(Color.LIGHTGRAY);
 			drawPane.getChildren().add(ruler);
+			linesVertical.add(ruler);
 		}
 		for (int i = 1; i <= 3; i++) {
 			Line ruler = new Line(0, PANE_HEIGHT / 2 / 4 * i, PANE_WIDTH, PANE_HEIGHT / 2 / 4 * i);
-			ruler.setStrokeWidth(2);
+			ruler.setStrokeWidth(LINE_WIDTH);
 			ruler.setStroke(Color.LIGHTGRAY);
 			drawPane.getChildren().add(ruler);
+			linesHorizontal.add(ruler);
 		}
 
 		// Rubberband
@@ -489,11 +497,7 @@ public class WorkViewController {
 			}
 
 			orgSceneX = t.getSceneX();
-			orgSceneY = t.getSceneY();
-			// circleTranslates.get(index).setTranslateX(circle.getTranslateX());
-			// circleTranslates.get(index).setTranslateY(circle.getTranslateY());
-
-			// orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
+			orgSceneY = t.getSceneY() - PANE_HEIGHT / 2 + 5;
 			System.out.format("orgTranslateX:%f, orgTranslateY:%f\n", circleTranslates.get(index).getTranslateX(),
 					circleTranslates.get(index).getTranslateY());
 		}
@@ -502,12 +506,12 @@ public class WorkViewController {
 	EventHandler<MouseEvent> circleOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent t) {
-
+			double mouseX = t.getSceneX();
+			double mouseY = t.getSceneY() - PANE_HEIGHT / 2 + 5;
 			if (!addToggle.isSelected() && !groupToggle.isSelected()) {
 				Circle source = (Circle) t.getTarget();
-				double offsetX = t.getSceneX() - orgSceneX;
-				double offsetY = t.getSceneY() - orgSceneY;
-
+				double offsetX = mouseX - orgSceneX;
+				double offsetY = mouseY - orgSceneY;
 				if (groupedCircles.contains(source) && groupedCircles.size() > 0) {
 					for (Circle circle : groupedCircles) {
 						int index = curProj.getDancerIndex(circle);
@@ -515,21 +519,52 @@ public class WorkViewController {
 						double newTranslateY = circleTranslates.get(index).getTranslateY() + offsetY;
 						circleTranslates.get(index).setTranslateX(newTranslateX);
 						circleTranslates.get(index).setTranslateY(newTranslateY);
-						// circle.setTranslateX(newTranslateX);
-						// circle.setTranslateY(newTranslateY);
-						// groupedPaths.get(index).setTranslateX(newTranslateX);
-						// groupedPaths.get(index).setTranslateY(newTranslateY);
 					}
 				} else {
 					int index = curProj.getDancerIndex(source);
-					double newTranslateX = circleTranslates.get(index).getTranslateX() + offsetX;
-					double newTranslateY = circleTranslates.get(index).getTranslateY() + offsetY;
-					circleTranslates.get(index).setTranslateX(newTranslateX);
-					circleTranslates.get(index).setTranslateY(newTranslateY);
-					// source.setTranslateX(newTranslateX);
-					// source.setTranslateY(newTranslateY);
-					// groupedPaths.get(index).setTranslateX(newTranslateX);
-					// groupedPaths.get(index).setTranslateY(newTranslateY);
+					// Magnet
+					boolean magnetX = false;
+					boolean magnetY = false;
+					// 其他dancer
+					for (Dancer dancer : curProj.getDancers()) {
+						if (dancer.getIndex() == index) {
+							continue;
+						}
+						double dancerX = dancer.getCircle().getCenterX() + dancer.getCircle().getTranslateX();
+						double dancerY = dancer.getCircle().getCenterY() + dancer.getCircle().getTranslateY();
+						if (Math.abs(dancerX - mouseX) < 10) {
+							circleTranslates.get(index).setTranslateX(dancerX - source.getCenterX());
+							magnetX = true;
+						}
+						if (Math.abs(dancerY - mouseY) < 10) {
+							circleTranslates.get(index).setTranslateY(dancerY - source.getCenterY());
+							magnetY = true;
+						}
+					}
+					// 尺規
+					for (Line ruler : linesVertical){
+						double lineX = ruler.getStartX();
+						if (Math.abs(lineX - mouseX) < 10) {
+							circleTranslates.get(index).setTranslateX(lineX - source.getCenterX());
+							magnetX = true;
+						}
+					}
+					for (Line ruler : linesHorizontal){
+						double lineY = ruler.getStartY();
+						if (Math.abs(lineY - mouseY) < 10) {
+							circleTranslates.get(index).setTranslateY(lineY - source.getCenterY());
+							magnetY = true;
+						}
+					}
+					
+					if (!magnetX) {
+						double newTranslateX = circleTranslates.get(index).getTranslateX() + offsetX;
+						circleTranslates.get(index).setTranslateX(newTranslateX);
+					}
+					if (!magnetY) {
+						double newTranslateY = circleTranslates.get(index).getTranslateY() + offsetY;
+						circleTranslates.get(index).setTranslateY(newTranslateY);
+					}
 				}
 				orgSceneX += offsetX;
 				orgSceneY += offsetY;
