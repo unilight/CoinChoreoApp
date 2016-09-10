@@ -194,6 +194,17 @@ public class WorkViewController {
 		System.out.format("x:%f, y:%f%n", e.getSceneX(), e.getSceneY());
 		System.out.format("x:%f, y:%f%n", e.getScreenX(), e.getScreenY());
 	}
+	
+	private void resetRuler() {
+		for(Line ruler : linesVertical){
+			ruler.setStrokeWidth(LINE_WIDTH);
+			ruler.setStroke(Color.LIGHTGRAY);
+		}
+		for(Line ruler : linesHorizontal){
+			ruler.setStrokeWidth(LINE_WIDTH);
+			ruler.setStroke(Color.LIGHTGRAY);
+		}
+	}
 
 	@FXML
 	private void drawCircle(MouseEvent e) {
@@ -525,6 +536,7 @@ public class WorkViewController {
 					// Magnet
 					boolean magnetX = false;
 					boolean magnetY = false;
+					resetRuler();
 					// 其他dancer
 					for (Dancer dancer : curProj.getDancers()) {
 						if (dancer.getIndex() == index) {
@@ -546,6 +558,8 @@ public class WorkViewController {
 						double lineX = ruler.getStartX();
 						if (Math.abs(lineX - mouseX) < 10) {
 							circleTranslates.get(index).setTranslateX(lineX - source.getCenterX());
+							ruler.setStrokeWidth(LINE_WIDTH_MAGNET);
+							ruler.setStroke(Color.MEDIUMSPRINGGREEN);
 							magnetX = true;
 						}
 					}
@@ -553,6 +567,8 @@ public class WorkViewController {
 						double lineY = ruler.getStartY();
 						if (Math.abs(lineY - mouseY) < 10) {
 							circleTranslates.get(index).setTranslateY(lineY - source.getCenterY());
+							ruler.setStrokeWidth(LINE_WIDTH_MAGNET);
+							ruler.setStroke(Color.MEDIUMSPRINGGREEN);
 							magnetY = true;
 						}
 					}
@@ -575,6 +591,8 @@ public class WorkViewController {
 	EventHandler<MouseEvent> circleOnMouseReleaseEventHandler = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent t) {
+			resetRuler();
+			
 			Circle source = (Circle) t.getSource();
 
 			if (deleteToggle.isSelected()) {
