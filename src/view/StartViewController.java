@@ -1,31 +1,36 @@
 package view;
 
+import control.Constants;
 import control.MainApp;
 import javafx.fxml.FXML;
 
 public class StartViewController {
 
-	
 	private MainApp mainApp;
-	
-	public StartViewController(){
-		
+
+	public StartViewController() {
+
 	}
-	
+
 	@FXML
-	public void initialize(){
-		
+	public void initialize() {
+
 	}
-	
-	public void setMainApp(MainApp _mainApp){
+
+	public void setMainApp(MainApp _mainApp) {
 		this.mainApp = _mainApp;
 	}
-	
+
 	@FXML
-	private void handleNew(){
-		int num = mainApp.showNewFileDialog();
+	private void handleNew() {
+		int num;
+		if (Constants.Develop) {
+			num = 5;
+		} else {
+			num = mainApp.showNewFileDialog();
+		}
 		System.out.println(num);
 		mainApp.showWorkView(num);
 	}
-	
+
 }

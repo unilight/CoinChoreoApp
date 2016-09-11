@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import control.Constants;
 import control.MainApp;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -176,6 +177,10 @@ public class WorkViewController {
 		lineMagnetHorizontal = new Line(0, 0, PANE_WIDTH, 0);
 		lineMagnetHorizontal.setStroke(COLOR_MAGNET);
 		lineMagnetHorizontal.setStrokeWidth(1);
+		
+		if(Constants.Develop){
+			loadDefaultMusic();
+		}
 	}
 
 	public WorkViewController() {
