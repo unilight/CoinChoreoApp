@@ -1114,7 +1114,7 @@ public class WorkViewController {
 			autoFormStage.setScene(newScene);
 
 			// Set the controller.
-			AutoFormVViewController controller = loader.getController();
+			AutoFormViewController controller = loader.getController();
 			controller.setStage(autoFormStage);
 
 			// Show the dialog and wait until the user closes it
