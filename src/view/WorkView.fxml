@@ -27,10 +27,10 @@
                      <children>
                         <GridPane gridLinesVisible="true" GridPane.rowIndex="3">
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="144.0" minWidth="10.0" prefWidth="68.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="251.0" minWidth="10.0" prefWidth="79.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="251.0" minWidth="10.0" prefWidth="189.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="384.0" minWidth="10.0" prefWidth="260.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="144.0" minWidth="10.0" prefWidth="78.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="251.0" minWidth="10.0" prefWidth="68.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="308.0" minWidth="10.0" prefWidth="203.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="393.0" minWidth="10.0" prefWidth="369.0" />
                           </columnConstraints>
                           <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -57,9 +57,9 @@
                               </GridPane>
                               <GridPane GridPane.columnIndex="2">
                                 <columnConstraints>
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="123.0" minWidth="10.0" prefWidth="120.0" />
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="73.0" minWidth="10.0" prefWidth="32.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="81.0" minWidth="10.0" prefWidth="30.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="137.0" minWidth="10.0" prefWidth="116.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="73.0" minWidth="10.0" prefWidth="20.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="81.0" minWidth="10.0" prefWidth="20.0" />
                                 </columnConstraints>
                                 <rowConstraints>
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -68,8 +68,8 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
-                                    <Label text="Alignment" GridPane.halignment="CENTER" />
-                                    <Label text="Alignment to Stage" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                                    <Label text="Align" GridPane.halignment="CENTER" />
+                                    <Label text="Align to Stage" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                                     <Label layoutX="10.0" layoutY="51.0" text="Diverge" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                                     <Label layoutX="10.0" layoutY="18.0" text="Diverge to Stage" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                                     <Button mnemonicParsing="false" onAction="#alignVertical" text="|" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
@@ -103,9 +103,9 @@
                               </GridPane>
                               <GridPane GridPane.columnIndex="3">
                                 <columnConstraints>
-                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="114.0" minWidth="10.0" prefWidth="97.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="179.0" minWidth="10.0" prefWidth="170.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="104.0" minWidth="10.0" prefWidth="89.0" />
                                 </columnConstraints>
                                 <rowConstraints>
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -114,9 +114,9 @@
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
-                                    <Label text="Auto Generate:" />
+                                    <Label text="Auto Generate:" GridPane.halignment="CENTER" />
                                     <Button mnemonicParsing="false" onAction="#showAutoForm" text="Generate" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
-                                    <ComboBox fx:id="autoFormCombobox" prefWidth="150.0" promptText="V" GridPane.columnIndex="1" />
+                                    <ComboBox fx:id="autoFormCombobox" prefWidth="160.0" promptText="V" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
                                  </children>
                               </GridPane>
                            </children>
