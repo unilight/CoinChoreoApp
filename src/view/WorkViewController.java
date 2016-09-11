@@ -59,6 +59,7 @@ import model.Keyframe;
 
 public class WorkViewController {
 
+	public final static Color COLOR_MAGNET = Color.MEDIUMSPRINGGREEN;
 	public final static int CIRCLE_RADIUS = 10;
 	public final static int KEYFRAME_CIRCLE_RADIUS = 5;
 	public final static int SLIDER_WIDTH = 625;
@@ -66,10 +67,11 @@ public class WorkViewController {
 	public final static int SLIDER_Y = 8;
 	public final static int SELECT_RADIUS = 12;
 	public final static int LINE_WIDTH = 2;
+	public final static int LINE_WIDTH_MAGNET = 4;
 	public final static int PANE_WIDTH = 720;
 	public final static int PANE_HEIGHT = 480;
 	public final static Duration DURATION_BEGIN = new Duration(-1);
-	private static final List<String> AUTOFORMS = Arrays.asList("V", "Circle", "Rectangle");
+	private static final List<String> AUTOFORMS = Arrays.asList("V", "Circle", "Rectangle", "Diagnoal", "Pyramid", "Diamond");
 
 	private static enum ORIENT {
 		X, Y
@@ -117,6 +119,12 @@ public class WorkViewController {
 
 	private Rectangle rubberband;
 
+	private List<Line> linesVertical = new ArrayList<Line>();
+	private List<Line> linesHorizontal = new ArrayList<Line>();
+
+	private Line lineMagnetVertical;
+	private Line lineMagnetHorizontal;
+
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
 	Media media;
@@ -141,15 +149,17 @@ public class WorkViewController {
 		// Ruler : 8 x 4
 		for (int i = 1; i <= 7; i++) {
 			Line ruler = new Line(PANE_WIDTH / 8 * i, 0, PANE_WIDTH / 8 * i, PANE_HEIGHT / 2);
-			ruler.setStrokeWidth(2);
+			ruler.setStrokeWidth(LINE_WIDTH);
 			ruler.setStroke(Color.LIGHTGRAY);
 			drawPane.getChildren().add(ruler);
+			linesVertical.add(ruler);
 		}
 		for (int i = 1; i <= 3; i++) {
 			Line ruler = new Line(0, PANE_HEIGHT / 2 / 4 * i, PANE_WIDTH, PANE_HEIGHT / 2 / 4 * i);
-			ruler.setStrokeWidth(2);
+			ruler.setStrokeWidth(LINE_WIDTH);
 			ruler.setStroke(Color.LIGHTGRAY);
 			drawPane.getChildren().add(ruler);
+			linesHorizontal.add(ruler);
 		}
 
 		// Rubberband
@@ -159,6 +169,13 @@ public class WorkViewController {
 		rubberband.setStrokeLineCap(StrokeLineCap.ROUND);
 		rubberband.setFill(Color.LIGHTBLUE.deriveColor(0, 1.2, 1, 0.6));
 
+		// Magnet Line
+		lineMagnetVertical = new Line(0, 0, 0, PANE_HEIGHT/2);
+		lineMagnetVertical.setStroke(COLOR_MAGNET);
+		lineMagnetVertical.setStrokeWidth(1);
+		lineMagnetHorizontal = new Line(0, 0, PANE_WIDTH, 0);
+		lineMagnetHorizontal.setStroke(COLOR_MAGNET);
+		lineMagnetHorizontal.setStrokeWidth(1);
 	}
 
 	public WorkViewController() {
@@ -185,6 +202,19 @@ public class WorkViewController {
 	private void printX(MouseEvent e) {
 		System.out.format("x:%f, y:%f%n", e.getSceneX(), e.getSceneY());
 		System.out.format("x:%f, y:%f%n", e.getScreenX(), e.getScreenY());
+	}
+
+	private void resetRulerLines() {
+		for (Line ruler : linesVertical) {
+			ruler.setStrokeWidth(LINE_WIDTH);
+			ruler.setStroke(Color.LIGHTGRAY);
+		}
+		for (Line ruler : linesHorizontal) {
+			ruler.setStrokeWidth(LINE_WIDTH);
+			ruler.setStroke(Color.LIGHTGRAY);
+		}
+		drawPane.getChildren().remove(lineMagnetVertical);
+		drawPane.getChildren().remove(lineMagnetHorizontal);
 	}
 
 	@FXML
@@ -489,11 +519,7 @@ public class WorkViewController {
 			}
 
 			orgSceneX = t.getSceneX();
-			orgSceneY = t.getSceneY();
-			// circleTranslates.get(index).setTranslateX(circle.getTranslateX());
-			// circleTranslates.get(index).setTranslateY(circle.getTranslateY());
-
-			// orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
+			orgSceneY = t.getSceneY() - PANE_HEIGHT / 2 + 5;
 			System.out.format("orgTranslateX:%f, orgTranslateY:%f\n", circleTranslates.get(index).getTranslateX(),
 					circleTranslates.get(index).getTranslateY());
 		}
@@ -502,12 +528,12 @@ public class WorkViewController {
 	EventHandler<MouseEvent> circleOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent t) {
-
+			double mouseX = t.getSceneX();
+			double mouseY = t.getSceneY() - PANE_HEIGHT / 2 + 5;
 			if (!addToggle.isSelected() && !groupToggle.isSelected()) {
 				Circle source = (Circle) t.getTarget();
-				double offsetX = t.getSceneX() - orgSceneX;
-				double offsetY = t.getSceneY() - orgSceneY;
-
+				double offsetX = mouseX - orgSceneX;
+				double offsetY = mouseY - orgSceneY;
 				if (groupedCircles.contains(source) && groupedCircles.size() > 0) {
 					for (Circle circle : groupedCircles) {
 						int index = curProj.getDancerIndex(circle);
@@ -515,21 +541,64 @@ public class WorkViewController {
 						double newTranslateY = circleTranslates.get(index).getTranslateY() + offsetY;
 						circleTranslates.get(index).setTranslateX(newTranslateX);
 						circleTranslates.get(index).setTranslateY(newTranslateY);
-						// circle.setTranslateX(newTranslateX);
-						// circle.setTranslateY(newTranslateY);
-						// groupedPaths.get(index).setTranslateX(newTranslateX);
-						// groupedPaths.get(index).setTranslateY(newTranslateY);
 					}
 				} else {
 					int index = curProj.getDancerIndex(source);
-					double newTranslateX = circleTranslates.get(index).getTranslateX() + offsetX;
-					double newTranslateY = circleTranslates.get(index).getTranslateY() + offsetY;
-					circleTranslates.get(index).setTranslateX(newTranslateX);
-					circleTranslates.get(index).setTranslateY(newTranslateY);
-					// source.setTranslateX(newTranslateX);
-					// source.setTranslateY(newTranslateY);
-					// groupedPaths.get(index).setTranslateX(newTranslateX);
-					// groupedPaths.get(index).setTranslateY(newTranslateY);
+					// TODO: 水平、垂直不要有兩條以上的線(dancer, ruler的線)
+					// Magnet
+					boolean magnetX = false;
+					boolean magnetY = false;
+					resetRulerLines();
+					// 其他dancer
+					for (Dancer dancer : curProj.getDancers()) {
+						if (dancer.getIndex() == index) {
+							continue;
+						}
+						double dancerX = dancer.getCircle().getCenterX() + dancer.getCircle().getTranslateX();
+						double dancerY = dancer.getCircle().getCenterY() + dancer.getCircle().getTranslateY();
+						if (Math.abs(dancerX - mouseX) < 10) {
+							circleTranslates.get(index).setTranslateX(dancerX - source.getCenterX());
+							lineMagnetVertical.setStartX(dancerX);
+							lineMagnetVertical.setEndX(dancerX);
+							drawPane.getChildren().add(lineMagnetVertical);
+							magnetX = true;
+						}
+						if (Math.abs(dancerY - mouseY) < 10) {
+							circleTranslates.get(index).setTranslateY(dancerY - source.getCenterY());
+							lineMagnetHorizontal.setStartY(dancerY);
+							lineMagnetHorizontal.setEndY(dancerY);
+							drawPane.getChildren().add(lineMagnetHorizontal);
+							magnetY = true;
+						}
+					}
+					// 尺規Magnet
+					for (Line ruler : linesVertical) {
+						double lineX = ruler.getStartX();
+						if (Math.abs(lineX - mouseX) < 10) {
+							circleTranslates.get(index).setTranslateX(lineX - source.getCenterX());
+							ruler.setStrokeWidth(LINE_WIDTH_MAGNET);
+							ruler.setStroke(COLOR_MAGNET);
+							magnetX = true;
+						}
+					}
+					for (Line ruler : linesHorizontal) {
+						double lineY = ruler.getStartY();
+						if (Math.abs(lineY - mouseY) < 10) {
+							circleTranslates.get(index).setTranslateY(lineY - source.getCenterY());
+							ruler.setStrokeWidth(LINE_WIDTH_MAGNET);
+							ruler.setStroke(COLOR_MAGNET);
+							magnetY = true;
+						}
+					}
+
+					if (!magnetX) {
+						double newTranslateX = circleTranslates.get(index).getTranslateX() + offsetX;
+						circleTranslates.get(index).setTranslateX(newTranslateX);
+					}
+					if (!magnetY) {
+						double newTranslateY = circleTranslates.get(index).getTranslateY() + offsetY;
+						circleTranslates.get(index).setTranslateY(newTranslateY);
+					}
 				}
 				orgSceneX += offsetX;
 				orgSceneY += offsetY;
@@ -540,6 +609,8 @@ public class WorkViewController {
 	EventHandler<MouseEvent> circleOnMouseReleaseEventHandler = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent t) {
+			resetRulerLines();
+
 			Circle source = (Circle) t.getSource();
 
 			if (deleteToggle.isSelected()) {
