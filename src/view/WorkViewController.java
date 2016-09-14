@@ -1134,11 +1134,15 @@ public class WorkViewController {
 
 	private void realAutoForm(List<String> args) {
 		String autoFormType = autoFormCombobox.getValue();
+		String posOption = args.get(0);
+		String sizeOption = args.get(1);
+		int size = groupedCircles.size();
+		// Check if cancelled or close btn pressed
+		if (posOption == AutoFormViewController.CLOSE && sizeOption == AutoFormViewController.CLOSE) {
+			return;
+		}
 		// V
 		if (autoFormType == "V") {
-			String posOption = args.get(0);
-			String sizeOption = args.get(1);
-			int size = groupedCircles.size();
 			double orgLeftX = getMostX(DIRECTION.LEFT);
 			double orgRightX = getMostX(DIRECTION.RIGHT);
 			double orgUpY = getMostY(DIRECTION.UP);
@@ -1147,10 +1151,6 @@ public class WorkViewController {
 			double rightX = 0;
 			double upY = 0;
 			double downY = 0;
-			// Check if cancelled or close btn pressed
-			if (posOption == AutoFormViewController.CLOSE && sizeOption == AutoFormViewController.CLOSE) {
-				return;
-			}
 			if (size < 3) {
 				// TODO: POPUP ERROR MESSAGE
 				return;
@@ -1191,9 +1191,6 @@ public class WorkViewController {
 		}
 		// Circle
 		else if (autoFormType == "Circle") {
-			String posOption = args.get(0);
-			String sizeOption = args.get(1);
-			int size = groupedCircles.size();
 			double originX = 0;
 			double originY = 0;
 			double radius = 0;
@@ -1204,10 +1201,6 @@ public class WorkViewController {
 			double semiMajorAxis = (getMostX(DIRECTION.RIGHT) - getMostX(DIRECTION.LEFT)) / 2; // 橫軸
 			double semiMinorAxis = (getMostY(DIRECTION.DOWN) - getMostY(DIRECTION.UP)) / 2; // 縱軸
 			System.out.println(semiMajorAxis + " " + semiMinorAxis);
-			// Check if cancelled or close btn pressed
-			if (posOption == AutoFormViewController.CLOSE && sizeOption == AutoFormViewController.CLOSE) {
-				return;
-			}
 			if (size < 3) {
 				// TODO: POPUP ERROR MESSAGE
 				return;
@@ -1238,6 +1231,53 @@ public class WorkViewController {
 				circleTranslates.get(index).setTranslateX(targetX - orgX);
 				circleTranslates.get(index).setTranslateY(targetY - orgY);
 			}
+		}
+		// Diagonal
+		else if (autoFormType == "Diagonal") {
+			String orientOption = args.get(2);
+			double orgLeftX = getMostX(DIRECTION.LEFT);
+			double orgRightX = getMostX(DIRECTION.RIGHT);
+			double orgUpY = getMostY(DIRECTION.UP);
+			double orgDownY = getMostY(DIRECTION.DOWN);
+			double leftX = 0;
+			double rightX = 0;
+			double upY = 0;
+			double downY = 0;
+			ORIENT_WARD orient = ORIENT_WARD.DOWNWARD;
+			if (size < 3) {
+				// TODO: POPUP ERROR MESSAGE
+				return;
+			}
+			if (sizeOption == "Current Group") {
+				leftX = orgLeftX;
+				rightX = orgRightX;
+				upY = orgUpY;
+				downY = orgDownY;
+			} else if (sizeOption == "Half Stage") {
+				leftX = PANE_WIDTH / 4;
+				rightX = PANE_WIDTH * 3 / 4;
+				upY = PANE_HEIGHT / 2 / 4;
+				downY = PANE_HEIGHT / 2 * 3 / 4;
+			}
+			if (posOption == "Stage Center") {
+				leftX += PANE_WIDTH / 2 - (rightX + leftX) / 2;
+				rightX += PANE_WIDTH / 2 - (rightX + leftX) / 2;
+				upY += PANE_HEIGHT / 2 / 2 - (downY + upY) / 2;
+				downY += PANE_HEIGHT / 2 / 2 - (downY + upY) / 2;
+			} else if (posOption == "Current Position") {
+				leftX += (orgRightX + orgLeftX) / 2 - (rightX + leftX) / 2;
+				rightX += (orgRightX + orgLeftX) / 2 - (rightX + leftX) / 2;
+				upY += (orgDownY + orgUpY) / 2 - (downY + upY) / 2;
+				downY += (orgDownY + orgUpY) / 2 - (downY + upY) / 2;
+			}
+			if (orientOption.equals("/")) {
+				orient = ORIENT_WARD.UPWARD;
+			} else {
+				orient = ORIENT_WARD.DOWNWARD;
+			}
+			DancerCompareType[] sortedDancers = getSortedGroupedDancers(ORIENT.X);
+			divergeVertical(leftX, rightX, sortedDancers);
+			divergeHorizontal(orient, 0, size - 1, upY, downY, sortedDancers);
 		}
 
 	}
@@ -1309,11 +1349,11 @@ public class WorkViewController {
 			// TODO: Popup error msg
 			return;
 		}
-		double centerX = (getMostX(DIRECTION.LEFT)+getMostX(DIRECTION.RIGHT))/2;
+		double centerX = (getMostX(DIRECTION.LEFT) + getMostX(DIRECTION.RIGHT)) / 2;
 		for (Circle circle : groupedCircles) {
 			int index = curProj.getDancerIndex(circle);
 			double orgX = circle.getCenterX() + circle.getTranslateX();
-			circleTranslates.get(index).setTranslateX(centerX+(centerX-orgX)-circle.getCenterX());
+			circleTranslates.get(index).setTranslateX(centerX + (centerX - orgX) - circle.getCenterX());
 		}
 	}
 
@@ -1324,11 +1364,11 @@ public class WorkViewController {
 			// TODO: Popup error msg
 			return;
 		}
-		double centerY = (getMostY(DIRECTION.UP)+getMostY(DIRECTION.DOWN))/2;
+		double centerY = (getMostY(DIRECTION.UP) + getMostY(DIRECTION.DOWN)) / 2;
 		for (Circle circle : groupedCircles) {
 			int index = curProj.getDancerIndex(circle);
 			double orgY = circle.getCenterY() + circle.getTranslateY();
-			circleTranslates.get(index).setTranslateY(centerY+(centerY-orgY)-circle.getCenterY());
+			circleTranslates.get(index).setTranslateY(centerY + (centerY - orgY) - circle.getCenterY());
 		}
 	}
 }

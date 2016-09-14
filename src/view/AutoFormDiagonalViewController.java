@@ -52,6 +52,7 @@ public class AutoFormDiagonalViewController extends AutoFormViewController{
 	void handleGenerate() {
 		position = positionCombobox.getValue();
 		size = sizeCombobox.getValue();
+		orient = orientCombobox.getValue();
 
 		autoFormStage.close();
 	}
