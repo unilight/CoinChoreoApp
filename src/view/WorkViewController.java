@@ -61,6 +61,9 @@ import model.Keyframe;
 public class WorkViewController {
 
 	public final static Color COLOR_MAGNET = Color.MEDIUMSPRINGGREEN;
+	public final static Color COLOR_RULER_UNMAGNET = Color.LIGHTGRAY;
+	public final static Color COLOR_RUBBERBAND_STORKE = Color.BLUE;
+	public final static Color COLOR_RUBBERBAND_FILL = Color.LIGHTBLUE.deriveColor(0, 1.2, 1, 0.6);
 	public final static int CIRCLE_RADIUS = 10;
 	public final static int KEYFRAME_CIRCLE_RADIUS = 5;
 	public final static int SLIDER_WIDTH = 625;
@@ -155,24 +158,24 @@ public class WorkViewController {
 		for (int i = 1; i <= 7; i++) {
 			Line ruler = new Line(PANE_WIDTH / 8 * i, 0, PANE_WIDTH / 8 * i, PANE_HEIGHT / 2);
 			ruler.setStrokeWidth(LINE_WIDTH);
-			ruler.setStroke(Color.LIGHTGRAY);
+			ruler.setStroke(COLOR_RULER_UNMAGNET);
 			drawPane.getChildren().add(ruler);
 			linesVertical.add(ruler);
 		}
 		for (int i = 1; i <= 3; i++) {
 			Line ruler = new Line(0, PANE_HEIGHT / 2 / 4 * i, PANE_WIDTH, PANE_HEIGHT / 2 / 4 * i);
 			ruler.setStrokeWidth(LINE_WIDTH);
-			ruler.setStroke(Color.LIGHTGRAY);
+			ruler.setStroke(COLOR_RULER_UNMAGNET);
 			drawPane.getChildren().add(ruler);
 			linesHorizontal.add(ruler);
 		}
 
 		// Rubberband
 		rubberband = new Rectangle(0, 0, 0, 0);
-		rubberband.setStroke(Color.BLUE);
+		rubberband.setStroke(COLOR_RUBBERBAND_STORKE);
 		rubberband.setStrokeWidth(1);
 		rubberband.setStrokeLineCap(StrokeLineCap.ROUND);
-		rubberband.setFill(Color.LIGHTBLUE.deriveColor(0, 1.2, 1, 0.6));
+		rubberband.setFill(COLOR_RUBBERBAND_FILL);
 
 		// Magnet Line
 		lineMagnetVertical = new Line(0, 0, 0, PANE_HEIGHT / 2);
@@ -194,17 +197,10 @@ public class WorkViewController {
 	public void setProj(Proj _proj) {
 		this.curProj = _proj;
 		indexManager = new IndexManager(curProj.getNumOfDancers());
-
-		// Dancer Init
-		// maxNum = curProj.getNumOfDancers();
 	}
 
 	public void setMainApp(MainApp _mainApp) {
 		this.mainApp = _mainApp;
-	}
-
-	public void setDialogStage(Stage dialogStage) {
-		this.dialogStage = dialogStage;
 	}
 
 	@FXML
@@ -267,17 +263,11 @@ public class WorkViewController {
 				CircleTranslate circleTranslate = new CircleTranslate(index);
 				circle.translateXProperty().bind(circleTranslate.getDpTranslateX());
 				circle.translateYProperty().bind(circleTranslate.getDpTranslateY());
-				// circleTranslates.add(index, new CircleTranslate(index));
-				// circleTranslates.set(index, new CircleTranslate(index));
-				// circle.translateXProperty().bind(circleTranslates.get(index).getDpTranslateX());
-				// circle.translateYProperty().bind(circleTranslates.get(index).getDpTranslateY());
 
 				Path path = drawSelectionPath(x, y);
 				path.setVisible(false);
 				path.translateXProperty().bind(circleTranslate.getDpTranslateX());
 				path.translateYProperty().bind(circleTranslate.getDpTranslateY());
-				// path.translateXProperty().bind(circleTranslates.get(index).getDpTranslateX());
-				// path.translateYProperty().bind(circleTranslates.get(index).getDpTranslateY());
 
 				circleTranslates.add(circleTranslate);
 
@@ -293,8 +283,6 @@ public class WorkViewController {
 					timeline.get(i).getCircleTranslates().add(newCircleTranslate);
 				}
 				listTimeline();
-
-				// dancers.add(new Dancer(currentDancersDrawn, x, y));
 
 			}
 
