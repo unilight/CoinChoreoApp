@@ -1285,16 +1285,50 @@ public class WorkViewController {
 
 	@FXML
 	public void switchDancers() {
-		
-	}
-	
-	@FXML
-	public void LRMirror(){
-		
+		int size = groupedCircles.size();
+		if (size != 2) {
+			// TODO: Popup error msg
+			return;
+		}
+		int index0 = curProj.getDancerIndex(groupedCircles.get(0));
+		int index1 = curProj.getDancerIndex(groupedCircles.get(1));
+		double orgX0 = groupedCircles.get(0).getCenterX() + groupedCircles.get(0).getTranslateX();
+		double orgY0 = groupedCircles.get(0).getCenterY() + groupedCircles.get(0).getTranslateY();
+		double orgX1 = groupedCircles.get(1).getCenterX() + groupedCircles.get(1).getTranslateX();
+		double orgY1 = groupedCircles.get(1).getCenterY() + groupedCircles.get(1).getTranslateY();
+		circleTranslates.get(index0).setTranslateX(orgX1 - groupedCircles.get(0).getCenterX());
+		circleTranslates.get(index0).setTranslateY(orgY1 - groupedCircles.get(0).getCenterY());
+		circleTranslates.get(index1).setTranslateX(orgX0 - groupedCircles.get(1).getCenterX());
+		circleTranslates.get(index1).setTranslateY(orgY0 - groupedCircles.get(1).getCenterY());
 	}
 
 	@FXML
-	public void UDMirror(){
-		
+	public void LRMirror() {
+		int size = groupedCircles.size();
+		if (size < 2) {
+			// TODO: Popup error msg
+			return;
+		}
+		double centerX = (getMostX(DIRECTION.LEFT)+getMostX(DIRECTION.RIGHT))/2;
+		for (Circle circle : groupedCircles) {
+			int index = curProj.getDancerIndex(circle);
+			double orgX = circle.getCenterX() + circle.getTranslateX();
+			circleTranslates.get(index).setTranslateX(centerX+(centerX-orgX)-circle.getCenterX());
+		}
+	}
+
+	@FXML
+	public void UDMirror() {
+		int size = groupedCircles.size();
+		if (size < 2) {
+			// TODO: Popup error msg
+			return;
+		}
+		double centerY = (getMostY(DIRECTION.UP)+getMostY(DIRECTION.DOWN))/2;
+		for (Circle circle : groupedCircles) {
+			int index = curProj.getDancerIndex(circle);
+			double orgY = circle.getCenterY() + circle.getTranslateY();
+			circleTranslates.get(index).setTranslateY(centerY+(centerY-orgY)-circle.getCenterY());
+		}
 	}
 }
