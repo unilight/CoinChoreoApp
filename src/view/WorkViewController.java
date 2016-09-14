@@ -84,7 +84,11 @@ public class WorkViewController {
 
 	private static enum ORIENT_WARD {
 		DOWNWARD, UPWARD
-	}
+	};
+
+	private static enum DIRECTION {
+		LEFT, RIGHT, UP, DOWN
+	};
 
 	@FXML
 	private Label time;
@@ -171,14 +175,14 @@ public class WorkViewController {
 		rubberband.setFill(Color.LIGHTBLUE.deriveColor(0, 1.2, 1, 0.6));
 
 		// Magnet Line
-		lineMagnetVertical = new Line(0, 0, 0, PANE_HEIGHT/2);
+		lineMagnetVertical = new Line(0, 0, 0, PANE_HEIGHT / 2);
 		lineMagnetVertical.setStroke(COLOR_MAGNET);
 		lineMagnetVertical.setStrokeWidth(1);
 		lineMagnetHorizontal = new Line(0, 0, PANE_WIDTH, 0);
 		lineMagnetHorizontal.setStroke(COLOR_MAGNET);
 		lineMagnetHorizontal.setStrokeWidth(1);
-		
-		if(Constants.Develop){
+
+		if (Constants.Develop) {
 			loadDefaultMusic();
 		}
 	}
@@ -1131,14 +1135,14 @@ public class WorkViewController {
 	private void realAutoForm(List<String> args) {
 		String autoFormType = autoFormCombobox.getValue();
 		// V
-		if (autoFormType == AUTOFORMS.get(0)) {
+		if (autoFormType == "V") {
 			String posOption = args.get(0);
 			String sizeOption = args.get(1);
 			int size = groupedCircles.size();
-			double orgLeftX = getMostX("LEFT");
-			double orgRightX = getMostX("RIGHT");
-			double orgUpY = getMostY("UP");
-			double orgDownY = getMostY("DOWN");
+			double orgLeftX = getMostX(DIRECTION.LEFT);
+			double orgRightX = getMostX(DIRECTION.RIGHT);
+			double orgUpY = getMostY(DIRECTION.UP);
+			double orgDownY = getMostY(DIRECTION.DOWN);
 			double leftX = 0;
 			double rightX = 0;
 			double upY = 0;
@@ -1185,27 +1189,77 @@ public class WorkViewController {
 			}
 			divergeHorizontal(ORIENT_WARD.UPWARD, size / 2, size - 1, upY, downY, sortedDancers);
 		}
+		// Circle
+		else if (autoFormType == "Circle") {
+			String posOption = args.get(0);
+			String sizeOption = args.get(1);
+			int size = groupedCircles.size();
+			double originX = 0;
+			double originY = 0;
+			double radius = 0;
+			double orgLeftX = getMostX(DIRECTION.LEFT);
+			double orgRightX = getMostX(DIRECTION.RIGHT);
+			double orgUpY = getMostY(DIRECTION.UP);
+			double orgDownY = getMostY(DIRECTION.DOWN);
+			double semiMajorAxis = (getMostX(DIRECTION.RIGHT) - getMostX(DIRECTION.LEFT)) / 2; // 橫軸
+			double semiMinorAxis = (getMostY(DIRECTION.DOWN) - getMostY(DIRECTION.UP)) / 2; // 縱軸
+			System.out.println(semiMajorAxis + " " + semiMinorAxis);
+			// Check if cancelled or close btn pressed
+			if (posOption == AutoFormViewController.CLOSE && sizeOption == AutoFormViewController.CLOSE) {
+				return;
+			}
+			if (size < 3) {
+				// TODO: POPUP ERROR MESSAGE
+				return;
+			}
+			if (sizeOption == "Current Group") {
+				// 取比較短的軸
+				radius = Math.min(semiMajorAxis, semiMinorAxis);
+			} else if (sizeOption == "Half Stage") {
+				radius = PANE_HEIGHT / 8;
+			}
+			if (posOption == "Stage Center") {
+				originX = PANE_WIDTH / 2;
+				originY = PANE_HEIGHT / 2 / 2;
+			} else if (posOption == "Current Position") {
+				originX = (orgRightX + orgLeftX) / 2;
+				originY = (orgDownY + orgUpY) / 2;
+			}
+			for (int i = 0; i < size; i++) {
+				int index = curProj.getDancerIndex(groupedCircles.get(i));
+				double orgX = groupedCircles.get(i).getCenterX();
+				double orgY = groupedCircles.get(i).getCenterY();
+				// double destinationX = originX + semiMajorAxis * Math.cos(size
+				// * i / 360);
+				// double destinationY = originY + semiMinorAxis * Math.sin(size
+				// * i / 360);
+				double targetX = originX + radius * Math.cos(Math.toRadians(360 / size * i - 90));
+				double targetY = originY + radius * Math.sin(Math.toRadians(360 / size * i - 90));
+				circleTranslates.get(index).setTranslateX(targetX - orgX);
+				circleTranslates.get(index).setTranslateY(targetY - orgY);
+			}
+		}
 
 	}
 
-	private double getMostX(String orient) {
+	private double getMostX(DIRECTION orient) {
 		int size = groupedCircles.size();
 		DancerCompareType[] xDancerCompares = getSortedGroupedDancers(ORIENT.X);
-		if (orient == "LEFT") {
+		if (orient == DIRECTION.LEFT) {
 			return xDancerCompares[0].x;
-		} else if (orient == "RIGHT") {
+		} else if (orient == DIRECTION.RIGHT) {
 			return xDancerCompares[size - 1].x;
 		} else {
 			return 0;
 		}
 	}
 
-	private double getMostY(String orient) {
+	private double getMostY(DIRECTION orient) {
 		int size = groupedCircles.size();
 		DancerCompareType[] yDancerCompares = getSortedGroupedDancers(ORIENT.Y);
-		if (orient == "UP") {
+		if (orient == DIRECTION.UP) {
 			return yDancerCompares[0].y;
-		} else if (orient == "DOWN") {
+		} else if (orient == DIRECTION.DOWN) {
 			return yDancerCompares[size - 1].y;
 		} else {
 			return 0;
