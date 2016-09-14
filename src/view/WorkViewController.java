@@ -72,7 +72,7 @@ public class WorkViewController {
 	public final static int PANE_WIDTH = 720;
 	public final static int PANE_HEIGHT = 480;
 	public final static Duration DURATION_BEGIN = new Duration(-1);
-	private static final List<String> AUTOFORMS = Arrays.asList("V", "Circle", "Rectangle", "Diagnoal", "Pyramid", "Diamond");
+	private static final List<String> AUTOFORMS = Arrays.asList("V", "Circle", "Rectangle", "Diagonal", "Pyramid", "Diamond");
 
 	private static enum ORIENT {
 		X, Y
