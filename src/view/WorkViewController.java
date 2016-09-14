@@ -1283,4 +1283,18 @@ public class WorkViewController {
 		return dancerCompares;
 	}
 
+	@FXML
+	public void switchDancers() {
+		
+	}
+	
+	@FXML
+	public void LRMirror(){
+		
+	}
+
+	@FXML
+	public void UDMirror(){
+		
+	}
 }

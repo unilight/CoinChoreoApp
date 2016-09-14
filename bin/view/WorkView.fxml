@@ -103,7 +103,7 @@
                               </GridPane>
                               <GridPane GridPane.columnIndex="3">
                                 <columnConstraints>
-                                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="114.0" minWidth="10.0" prefWidth="97.0" />
+                                  <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="114.0" minWidth="10.0" prefWidth="97.0" />
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="179.0" minWidth="10.0" prefWidth="170.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="104.0" minWidth="10.0" prefWidth="89.0" />
                                 </columnConstraints>
@@ -117,6 +117,9 @@
                                     <Label text="Auto Generate:" GridPane.halignment="CENTER" />
                                     <Button mnemonicParsing="false" onAction="#showAutoForm" text="Generate" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
                                     <ComboBox fx:id="autoFormCombobox" prefWidth="160.0" promptText="V" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                                    <Button mnemonicParsing="false" onAction="#switchDancers" text="Switch" GridPane.rowIndex="1" />
+                                    <Button mnemonicParsing="false" onAction="#LRMirror" text="LR Mirror" GridPane.rowIndex="2" />
+                                    <Button mnemonicParsing="false" onAction="#UDMirror" text="UD Mirror" GridPane.rowIndex="3" />
                                  </children>
                               </GridPane>
                            </children>
