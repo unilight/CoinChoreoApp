@@ -1304,11 +1304,31 @@ public class WorkViewController {
 
 	@FXML
 	public void LRMirror() {
-
+		int size = groupedCircles.size();
+		if (size < 2) {
+			// TODO: Popup error msg
+			return;
+		}
+		double centerX = (getMostX(DIRECTION.LEFT)+getMostX(DIRECTION.RIGHT))/2;
+		for (Circle circle : groupedCircles) {
+			int index = curProj.getDancerIndex(circle);
+			double orgX = circle.getCenterX() + circle.getTranslateX();
+			circleTranslates.get(index).setTranslateX(centerX+(centerX-orgX)-circle.getCenterX());
+		}
 	}
 
 	@FXML
 	public void UDMirror() {
-
+		int size = groupedCircles.size();
+		if (size < 2) {
+			// TODO: Popup error msg
+			return;
+		}
+		double centerY = (getMostY(DIRECTION.UP)+getMostY(DIRECTION.DOWN))/2;
+		for (Circle circle : groupedCircles) {
+			int index = curProj.getDancerIndex(circle);
+			double orgY = circle.getCenterY() + circle.getTranslateY();
+			circleTranslates.get(index).setTranslateY(centerY+(centerY-orgY)-circle.getCenterY());
+		}
 	}
 }
