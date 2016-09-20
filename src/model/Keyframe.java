@@ -79,6 +79,7 @@ public class Keyframe {
 	public String toString() {
 		String s = "";
 		s += (time.toSeconds()+" ");
+		s += (type+" ");
 		for(int i=0; i<circleTranslates.size();i++){
 			s +=(circleTranslates.get(i).toString()+" ");
 		}

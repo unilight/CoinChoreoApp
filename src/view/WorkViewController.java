@@ -240,7 +240,6 @@ public class WorkViewController {
 
 				// 先新建一個Keyframe
 				Keyframe newKeyFrame = new Keyframe(circleTranslates, mediaPlayer.getCurrentTime());
-				addKeyframePane(newKeyFrame);
 				for (int i = 0; i < timeline.size(); i++) {
 					// 在此時間點已經有keyframe, 則直接break
 					if (timeline.get(i).getTime().toMillis() == newKeyFrame.getTime().toMillis()) {
@@ -248,6 +247,7 @@ public class WorkViewController {
 					}
 					if (timeline.get(i).getTime().toMillis() > newKeyFrame.getTime().toMillis()) {
 						timeline.add(i, newKeyFrame);
+						addKeyframePane(newKeyFrame);
 						break;
 					}
 				}
@@ -382,6 +382,7 @@ public class WorkViewController {
 				paneCircle.setFill(Color.GOLDENROD);
 				defaultMI.setDisable(false);
 				tweenMI.setDisable(true);
+				listTimeline();
 			}
 		});
 		defaultMI.setOnAction(new EventHandler<ActionEvent>() {
@@ -616,21 +617,10 @@ public class WorkViewController {
 				source.setCursor(Cursor.OPEN_HAND);
 			}
 
-			for (int i = 0; i < timeline.size(); i++) {
-				if (timeline.get(i).getTime().toMillis() == mediaPlayer.getCurrentTime().toMillis()) {
-					timeline.get(i).setCircleTranslates(circleTranslates);
-					break;
-				}
-				if (timeline.get(i).getTime().toMillis() >= mediaPlayer.getCurrentTime().toMillis()) {
-					Keyframe newKeyFrame = new Keyframe(circleTranslates, mediaPlayer.getCurrentTime());
-					timeline.add(i, newKeyFrame);
-					addKeyframePane(newKeyFrame);
-					break;
-				}
-			}
-			listTimeline();
+			updateTimeline();
 
 		}
+
 	};
 
 	private void initMediaPlayer() {
@@ -646,9 +636,11 @@ public class WorkViewController {
 			keyframePane.getChildren().add(line);
 
 			Keyframe newKeyframe;
+
 			newKeyframe = new Keyframe(circleTranslates, new Duration(0));
 			timeline.add(newKeyframe);
 			addKeyframePane(newKeyframe);
+
 			newKeyframe = new Keyframe(circleTranslates, duration);
 			timeline.add(newKeyframe);
 			addKeyframePane(newKeyframe);
@@ -706,6 +698,22 @@ public class WorkViewController {
 			}
 		}
 		// listCircleTranslates();
+	}
+
+	public void updateTimeline() {
+		for (int i = 0; i < timeline.size(); i++) {
+			if (timeline.get(i).getTime().toMillis() == mediaPlayer.getCurrentTime().toMillis()) {
+				timeline.get(i).setCircleTranslates(circleTranslates);
+				break;
+			}
+			if (timeline.get(i).getTime().toMillis() >= mediaPlayer.getCurrentTime().toMillis()) {
+				Keyframe newKeyFrame = new Keyframe(circleTranslates, mediaPlayer.getCurrentTime());
+				timeline.add(i, newKeyFrame);
+				addKeyframePane(newKeyFrame);
+				break;
+			}
+		}
+		listTimeline();
 	}
 
 	private void interpolateTranslates(Duration currentTime) {
@@ -889,6 +897,7 @@ public class WorkViewController {
 			double orgX = circle.getCenterX();
 			circleTranslates.get(index).setTranslateX(alignX - orgX);
 		}
+		updateTimeline();
 	}
 
 	@FXML
@@ -899,6 +908,7 @@ public class WorkViewController {
 			double orgX = circle.getCenterX();
 			circleTranslates.get(index).setTranslateX(alignX - orgX);
 		}
+		updateTimeline();
 	}
 
 	@FXML
@@ -925,6 +935,7 @@ public class WorkViewController {
 			double orgY = circle.getCenterY();
 			circleTranslates.get(index).setTranslateY(alignY - orgY);
 		}
+		updateTimeline();
 	}
 
 	@FXML
@@ -935,6 +946,7 @@ public class WorkViewController {
 			double orgY = circle.getCenterY();
 			circleTranslates.get(index).setTranslateY(alignY - orgY);
 		}
+		updateTimeline();
 	}
 
 	@FXML
@@ -950,6 +962,7 @@ public class WorkViewController {
 		leftX = xDancerCompares[0].x;
 		rightX = xDancerCompares[size - 1].x;
 		divergeVertical(leftX, rightX, xDancerCompares);
+		updateTimeline();
 	}
 
 	@FXML
@@ -982,6 +995,7 @@ public class WorkViewController {
 			// 再去做設定
 			circleTranslates.get(xDancerCompares[i].index).setTranslateX(targetX - orgX);
 		}
+		updateTimeline();
 	}
 
 	@FXML
@@ -1014,6 +1028,7 @@ public class WorkViewController {
 			// 再去做設定
 			circleTranslates.get(yDancerCompares[i].index).setTranslateY(targetY - orgY);
 		}
+		updateTimeline();
 	}
 
 	@FXML
@@ -1043,6 +1058,7 @@ public class WorkViewController {
 			// 再去做設定
 			circleTranslates.get(yDancerCompares[i].index).setTranslateY(targetY - orgY);
 		}
+		updateTimeline();
 	}
 
 	public void divergeVertical(double leftX, double rightX, DancerCompareType[] xDancerCompares) {
@@ -1114,7 +1130,7 @@ public class WorkViewController {
 
 			System.out.println("returning");
 			realAutoForm(controller.getArgs());
-
+			updateTimeline();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1328,6 +1344,8 @@ public class WorkViewController {
 		circleTranslates.get(index0).setTranslateY(orgY1 - groupedCircles.get(0).getCenterY());
 		circleTranslates.get(index1).setTranslateX(orgX0 - groupedCircles.get(1).getCenterX());
 		circleTranslates.get(index1).setTranslateY(orgY0 - groupedCircles.get(1).getCenterY());
+
+		updateTimeline();
 	}
 
 	@FXML
@@ -1343,6 +1361,7 @@ public class WorkViewController {
 			double orgX = circle.getCenterX() + circle.getTranslateX();
 			circleTranslates.get(index).setTranslateX(centerX + (centerX - orgX) - circle.getCenterX());
 		}
+		updateTimeline();
 	}
 
 	@FXML
@@ -1358,5 +1377,6 @@ public class WorkViewController {
 			double orgY = circle.getCenterY() + circle.getTranslateY();
 			circleTranslates.get(index).setTranslateY(centerY + (centerY - orgY) - circle.getCenterY());
 		}
+		updateTimeline();
 	}
 }
