@@ -180,10 +180,10 @@ public class WorkViewController {
 		// Magnet Line
 		lineMagnetVertical = new Line(0, 0, 0, PANE_HEIGHT / 2);
 		lineMagnetVertical.setStroke(COLOR_MAGNET);
-		lineMagnetVertical.setStrokeWidth(1);
+		lineMagnetVertical.setStrokeWidth(LINE_WIDTH_MAGNET);
 		lineMagnetHorizontal = new Line(0, 0, PANE_WIDTH, 0);
 		lineMagnetHorizontal.setStroke(COLOR_MAGNET);
-		lineMagnetHorizontal.setStrokeWidth(1);
+		lineMagnetHorizontal.setStrokeWidth(LINE_WIDTH_MAGNET);
 
 		if (Constants.Develop) {
 			loadDefaultMusic();
