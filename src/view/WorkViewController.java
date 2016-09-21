@@ -277,6 +277,7 @@ public class WorkViewController {
 
 				drawPane.getChildren().addAll(circle, path);
 
+				// 在每個kerframe裡面放入
 				for (int i = 0; i < timeline.size(); i++) {
 					CircleTranslate newCircleTranslate = new CircleTranslate(circleTranslate.getIndex(), circleTranslate.getTranslateX(),
 							circleTranslate.getTranslateY());
