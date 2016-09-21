@@ -60,6 +60,10 @@ import model.Keyframe;
 
 public class WorkViewController {
 
+	public static final int TIMELINE_LINE_DEFAULT = 1;
+	public static final int TIMELINE_LINE_ANIMATION = 3;
+	public static final Color COLOR_KEYFRAME_CIRCLE_DEFAULT = Color.GOLD;
+	public static final Color COLOR_KEYFRAME_CIRCLE_ANIMATION = Color.GOLDENROD;
 	public final static Color COLOR_MAGNET = Color.MEDIUMSPRINGGREEN;
 	public final static Color COLOR_RULER_UNMAGNET = Color.LIGHTGRAY;
 	public final static Color COLOR_RUBBERBAND_STORKE = Color.BLUE;
@@ -132,6 +136,8 @@ public class WorkViewController {
 
 	private Line lineMagnetVertical;
 	private Line lineMagnetHorizontal;
+
+	private List<Line> timelineLines = new ArrayList<Line>();
 
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
@@ -248,6 +254,7 @@ public class WorkViewController {
 					if (timeline.get(i).getTime().toMillis() > newKeyFrame.getTime().toMillis()) {
 						timeline.add(i, newKeyFrame);
 						addKeyframePane(newKeyFrame);
+						updateTimelineLines(newKeyFrame.getTime().toMillis());
 						break;
 					}
 				}
@@ -362,11 +369,39 @@ public class WorkViewController {
 		drawPane.getChildren().remove(rubberband);
 	}
 
+	private void updateTimelineLines(double keyframeTime) {
+
+		double x = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis(); // 新的位置
+		Line betweenLine = null;
+		// 找出在哪一條線上
+		for (Line line : timelineLines) {
+			if (line.contains(x, SLIDER_Y)) {
+				betweenLine = line;
+				break;
+			}
+		}
+		// 切成兩條線
+		if (betweenLine != null) {
+			double leftx = betweenLine.getStartX();
+			double rightx = betweenLine.getEndX();
+			Line newLeftLine = new Line(leftx, SLIDER_Y, x, SLIDER_Y);
+			Line newRightLine = new Line(x, SLIDER_Y, rightx, SLIDER_Y);
+			newLeftLine.setStrokeWidth(betweenLine.getStrokeWidth());
+			newRightLine.setStrokeWidth(betweenLine.getStrokeWidth());
+			timelineLines.remove(betweenLine);
+			keyframePane.getChildren().addAll(newLeftLine, newRightLine);
+			timelineLines.add(newLeftLine);
+			timelineLines.add(newRightLine);
+			newLeftLine.toBack();
+			newRightLine.toBack();
+		}
+	}
+
 	private void addKeyframePane(Keyframe newKeyFrame) {
 
 		double keyframeTime = newKeyFrame.getTime().toMillis();
 		double x = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis();
-		Circle paneCircle = new Circle(x, SLIDER_Y, KEYFRAME_CIRCLE_RADIUS, Color.GOLD);
+		Circle paneCircle = new Circle(x, SLIDER_Y, KEYFRAME_CIRCLE_RADIUS, COLOR_KEYFRAME_CIRCLE_DEFAULT);
 		paneCircle.setStroke(Color.BLACK);
 		paneCircle.setStrokeType(StrokeType.OUTSIDE);
 		paneCircle.setStrokeWidth(1);
@@ -380,7 +415,15 @@ public class WorkViewController {
 			@Override
 			public void handle(ActionEvent e) {
 				newKeyFrame.setType(Keyframe.TWEEN);
-				paneCircle.setFill(Color.GOLDENROD);
+				paneCircle.setFill(COLOR_KEYFRAME_CIRCLE_ANIMATION);
+				for (int i = 0; i < timelineLines.size(); i++) {
+					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()
+					double keyframeTime = newKeyFrame.getTime().toMillis();
+					if (timelineLines.get(i).getStartX() == SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()) {
+						timelineLines.get(i).setStrokeWidth(TIMELINE_LINE_ANIMATION);
+						break;
+					}
+				}
 				defaultMI.setDisable(false);
 				tweenMI.setDisable(true);
 				listTimeline();
@@ -390,7 +433,15 @@ public class WorkViewController {
 			@Override
 			public void handle(ActionEvent e) {
 				newKeyFrame.setType(Keyframe.DEFAULT);
-				paneCircle.setFill(Color.GOLDENROD);
+				paneCircle.setFill(COLOR_KEYFRAME_CIRCLE_DEFAULT);
+				for (int i = 0; i < timelineLines.size(); i++) {
+					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()
+					double keyframeTime = newKeyFrame.getTime().toMillis();
+					if (timelineLines.get(i).getStartX() == SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()) {
+						timelineLines.get(i).setStrokeWidth(TIMELINE_LINE_DEFAULT);
+						break;
+					}
+				}
 				defaultMI.setDisable(true);
 				tweenMI.setDisable(false);
 			}
@@ -619,6 +670,7 @@ public class WorkViewController {
 			}
 
 			updateTimeline();
+			
 
 		}
 
@@ -635,6 +687,7 @@ public class WorkViewController {
 
 			Line line = new Line(SLIDER_X, SLIDER_Y, SLIDER_X + SLIDER_WIDTH, SLIDER_Y);
 			keyframePane.getChildren().add(line);
+			timelineLines.add(line);
 
 			Keyframe newKeyframe;
 
@@ -714,6 +767,7 @@ public class WorkViewController {
 				break;
 			}
 		}
+		updateTimelineLines(mediaPlayer.getCurrentTime().toMillis());
 		listTimeline();
 	}
 
@@ -749,12 +803,14 @@ public class WorkViewController {
 	}
 
 	private void deepCopyCircleTranslates(Keyframe keyframe) {
+		// Unbind
 		for (Dancer dancer : curProj.getDancers()) {
 			dancer.circle.translateXProperty().unbind();
 			dancer.circle.translateYProperty().unbind();
 			dancer.getPath().translateXProperty().unbind();
 			dancer.getPath().translateYProperty().unbind();
 		}
+		// Copy translates
 		circleTranslates.clear();
 		for (CircleTranslate circleTranslate : keyframe.getCircleTranslates()) {
 			CircleTranslate newCircleTranslate = new CircleTranslate(circleTranslate.getIndex());
@@ -762,6 +818,7 @@ public class WorkViewController {
 			newCircleTranslate.setTranslateY(circleTranslate.getTranslateY());
 			circleTranslates.add(newCircleTranslate);
 		}
+		// Bind
 		for (CircleTranslate circleTranslate : circleTranslates) {
 			for (Dancer dancer : curProj.getDancers()) {
 				if (dancer.index == circleTranslate.getIndex()) {
