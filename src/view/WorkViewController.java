@@ -51,7 +51,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.lang.Math;
+
 import model.Proj;
+import model.TimelineLine;
 import utils.DancerComparatorByX;
 import utils.DancerComparatorByY;
 import utils.DancerCompareType;
@@ -141,7 +143,7 @@ public class WorkViewController {
 	private Line lineMagnetVertical;
 	private Line lineMagnetHorizontal;
 
-	private List<Line> timelineLines = new ArrayList<Line>();
+	private List<TimelineLine> timelineLines = new ArrayList<TimelineLine>();
 
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
@@ -376,9 +378,9 @@ public class WorkViewController {
 	private void updateTimelineLines(double keyframeTime) {
 
 		double x = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis(); // 新的位置
-		Line betweenLine = null;
+		TimelineLine betweenLine = null;
 		// 找出在哪一條線上
-		for (Line line : timelineLines) {
+		for (TimelineLine line : timelineLines) {
 			if (line.contains(x, SLIDER_Y)) {
 				betweenLine = line;
 				break;
@@ -388,8 +390,8 @@ public class WorkViewController {
 		if (betweenLine != null) {
 			double leftx = betweenLine.getStartX();
 			double rightx = betweenLine.getEndX();
-			Line newLeftLine = new Line(leftx, SLIDER_Y, x, SLIDER_Y);
-			Line newRightLine = new Line(x, SLIDER_Y, rightx, SLIDER_Y);
+			TimelineLine newLeftLine = new TimelineLine(leftx, SLIDER_Y, x, SLIDER_Y, betweenLine.getStartTime(), keyframeTime);
+			TimelineLine newRightLine = new TimelineLine(x, SLIDER_Y, rightx, SLIDER_Y, keyframeTime, betweenLine.getEndTime());
 			newLeftLine.setStrokeWidth(betweenLine.getStrokeWidth());
 			newRightLine.setStrokeWidth(betweenLine.getStrokeWidth());
 			timelineLines.remove(betweenLine);
@@ -424,7 +426,7 @@ public class WorkViewController {
 					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime
 					// / duration.toMillis()
 					double keyframeTime = newKeyFrame.getTime().toMillis();
-					if (timelineLines.get(i).getStartX() == SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()) {
+					if (Utils.sameTime(timelineLines.get(i).getStartTime(), keyframeTime)) {
 						timelineLines.get(i).setStrokeWidth(TIMELINE_LINE_ANIMATION);
 						break;
 					}
@@ -443,7 +445,7 @@ public class WorkViewController {
 					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime
 					// / duration.toMillis()
 					double keyframeTime = newKeyFrame.getTime().toMillis();
-					if (timelineLines.get(i).getStartX() == SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()) {
+					if (Utils.sameTime(timelineLines.get(i).getStartTime(), keyframeTime)) {
 						timelineLines.get(i).setStrokeWidth(TIMELINE_LINE_DEFAULT);
 						break;
 					}
@@ -514,6 +516,9 @@ public class WorkViewController {
 		System.out.println("============");
 		for (int i = 0; i < timeline.size(); i++) {
 			System.out.println(timeline.get(i).toString());
+		}
+		for (int i = 0; i < timelineLines.size(); i++) {
+			System.out.println(timelineLines.get(i).getStartTime()+" "+timelineLines.get(i).getEndTime());
 		}
 	}
 
@@ -704,7 +709,7 @@ public class WorkViewController {
 			mediaPlayer.setAudioSpectrumInterval(0.0016);
 			duration = mediaPlayer.getMedia().getDuration();
 
-			Line line = new Line(SLIDER_X, SLIDER_Y, SLIDER_X + SLIDER_WIDTH, SLIDER_Y);
+			TimelineLine line = new TimelineLine(SLIDER_X, SLIDER_Y, SLIDER_X + SLIDER_WIDTH, SLIDER_Y, 0, duration.toMillis());
 			keyframePane.getChildren().add(line);
 			timelineLines.add(line);
 
@@ -835,9 +840,6 @@ public class WorkViewController {
 		double currentKeyframeTime = 0;
 		double nextKeyframeTime = 0;
 		for (int i = 1; i < timeline.size(); i++) {
-			if (i == timeline.size() - 1) {
-				return;
-			}
 			if (timeline.get(i).getTime().toMillis() > currentTime.toMillis()) {
 				currentKeyframeIndex = i - 1;
 				currentKeyframeTime = timeline.get(i - 1).getTime().toMillis();
