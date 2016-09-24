@@ -14,6 +14,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -53,21 +55,23 @@ import model.Proj;
 import utils.DancerComparatorByX;
 import utils.DancerComparatorByY;
 import utils.DancerCompareType;
+import utils.Utils;
 import model.CircleTranslate;
 import model.Dancer;
 import model.IndexManager;
 import model.Keyframe;
+import model.PaneCircle;
 
 public class WorkViewController {
 
-	public static final int TIMELINE_LINE_DEFAULT = 1;
-	public static final int TIMELINE_LINE_ANIMATION = 3;
 	public static final Color COLOR_KEYFRAME_CIRCLE_DEFAULT = Color.GOLD;
 	public static final Color COLOR_KEYFRAME_CIRCLE_ANIMATION = Color.GOLDENROD;
 	public final static Color COLOR_MAGNET = Color.MEDIUMSPRINGGREEN;
 	public final static Color COLOR_RULER_UNMAGNET = Color.LIGHTGRAY;
 	public final static Color COLOR_RUBBERBAND_STORKE = Color.BLUE;
 	public final static Color COLOR_RUBBERBAND_FILL = Color.LIGHTBLUE.deriveColor(0, 1.2, 1, 0.6);
+	public static final int TIMELINE_LINE_DEFAULT = 1;
+	public static final int TIMELINE_LINE_ANIMATION = 3;
 	public final static int CIRCLE_RADIUS = 10;
 	public final static int KEYFRAME_CIRCLE_RADIUS = 5;
 	public final static int SLIDER_WIDTH = 625;
@@ -401,7 +405,7 @@ public class WorkViewController {
 
 		double keyframeTime = newKeyFrame.getTime().toMillis();
 		double x = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis();
-		Circle paneCircle = new Circle(x, SLIDER_Y, KEYFRAME_CIRCLE_RADIUS, COLOR_KEYFRAME_CIRCLE_DEFAULT);
+		PaneCircle paneCircle = new PaneCircle(x, SLIDER_Y, KEYFRAME_CIRCLE_RADIUS, COLOR_KEYFRAME_CIRCLE_DEFAULT, keyframeTime);
 		paneCircle.setStroke(Color.BLACK);
 		paneCircle.setStrokeType(StrokeType.OUTSIDE);
 		paneCircle.setStrokeWidth(1);
@@ -417,7 +421,8 @@ public class WorkViewController {
 				newKeyFrame.setType(Keyframe.TWEEN);
 				paneCircle.setFill(COLOR_KEYFRAME_CIRCLE_ANIMATION);
 				for (int i = 0; i < timelineLines.size(); i++) {
-					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()
+					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime
+					// / duration.toMillis()
 					double keyframeTime = newKeyFrame.getTime().toMillis();
 					if (timelineLines.get(i).getStartX() == SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()) {
 						timelineLines.get(i).setStrokeWidth(TIMELINE_LINE_ANIMATION);
@@ -435,7 +440,8 @@ public class WorkViewController {
 				newKeyFrame.setType(Keyframe.DEFAULT);
 				paneCircle.setFill(COLOR_KEYFRAME_CIRCLE_DEFAULT);
 				for (int i = 0; i < timelineLines.size(); i++) {
-					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()
+					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime
+					// / duration.toMillis()
 					double keyframeTime = newKeyFrame.getTime().toMillis();
 					if (timelineLines.get(i).getStartX() == SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis()) {
 						timelineLines.get(i).setStrokeWidth(TIMELINE_LINE_DEFAULT);
@@ -448,6 +454,13 @@ public class WorkViewController {
 		});
 		contextMenu.getItems().addAll(tweenMI, defaultMI);
 
+		EventHandler<MouseEvent> paneCircleOnMouseMovedEventHandler = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent t) {
+				((Circle) t.getSource()).setCursor(Cursor.HAND);
+			}
+		};
+
 		EventHandler<MouseEvent> paneCircleOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent e) {
@@ -455,23 +468,37 @@ public class WorkViewController {
 					contextMenu.show(paneCircle, e.getScreenX(), e.getScreenY());
 				} else {
 					int i = 0;
-					double time = 0;
-					for (Keyframe keyframe : timeline) {
-						if (e.getTarget() == keyframe.getPaneCircle()) {
-							time = keyframe.getTime().toMillis();
-							break;
-						}
-					}
-					Duration newTime = duration.multiply(time / duration.toMillis());
+					double newTime = ((PaneCircle) e.getTarget()).getKeyframeTime();
+					System.out.println("PaneCircle Pressed. NewTime: " + newTime);
 					Duration oldTime = mediaPlayer.getCurrentTime();
-					mediaPlayer.seek(newTime);
+					mediaPlayer.seek(new Duration(newTime));
+					/*
 					while (mediaPlayer.getCurrentTime().toMillis() == oldTime.toMillis()) {
 						i++;
 						if (i > 100) {
 							break;
 						}
 					}
-					updateValues();
+					 */
+					Task<Void> sleeper = new Task<Void>() {
+
+						@Override
+						protected Void call() throws Exception {
+							try {
+								Thread.sleep(200);
+							} catch (InterruptedException e) {}
+							return null;
+						}
+					};
+					sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+
+						@Override
+						public void handle(WorkerStateEvent event) {
+							updateValues();
+						}
+					});
+					new Thread(sleeper).start();
+
 				}
 			}
 		};
@@ -522,13 +549,6 @@ public class WorkViewController {
 		path.getElements().addAll(moveTo, arcToInner, moveTo2, arcToInner2);
 		return path;
 	}
-
-	EventHandler<MouseEvent> paneCircleOnMouseMovedEventHandler = new EventHandler<MouseEvent>() {
-		@Override
-		public void handle(MouseEvent t) {
-			((Circle) t.getSource()).setCursor(Cursor.HAND);
-		}
-	};
 
 	EventHandler<MouseEvent> circleOnMouseMovedEventHandler = new EventHandler<MouseEvent>() {
 		@Override
@@ -670,7 +690,6 @@ public class WorkViewController {
 			}
 
 			updateTimeline();
-			
 
 		}
 
@@ -743,20 +762,60 @@ public class WorkViewController {
 		if (!slider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slider.isValueChanging()) {
 			slider.setValue((currentTime.toMillis() / duration.toMillis()) * 100.0);
 		}
+		/*
+		 * final Duration argCurrentTime = currentTime;
+		 * Task<Void> sleeper = new Task<Void>() {
+		 * 
+		 * @Override
+		 * protected Void call() throws Exception {
+		 * try {
+		 * Thread.sleep(200);
+		 * } catch (InterruptedException e) {
+		 * }
+		 * return null;
+		 * }
+		 * };
+		 * sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+		 * 
+		 * @Override
+		 * public void handle(WorkerStateEvent event) {
+		 * updateTranslates(argCurrentTime);
+		 * }
+		 * });
+		 * new Thread(sleeper).start();
+		 */
+		updateTranslates(currentTime);
+	}
 
-		for (int i = 1; i < timeline.size(); i++) {
-			if (timeline.get(i).getTime().toMillis() > currentTime.toMillis()) {
-				deepCopyCircleTranslates(timeline.get(i - 1));
+	public void updateTranslates(Duration currentTime) {
+		/*
+		 * Two steps of updating keyframe:
+		 * 1.Iterate through the keyframes
+		 * 2.Find which interval currently on
+		 */
+		boolean step2 = true;
+		for (int i = 0; i < timeline.size(); i++) {
+			if (Utils.sameTime(timeline.get(i).getTime().toMillis(), currentTime.toMillis())) {
+				deepCopyCircleTranslates(timeline.get(i));
 				interpolateTranslates(currentTime);
-				break;
+				step2 = false;
 			}
 		}
-		// listCircleTranslates();
+
+		if (step2) {
+			for (int i = 1; i < timeline.size(); i++) {
+				if (timeline.get(i).getTime().toMillis() > currentTime.toMillis()) {
+					deepCopyCircleTranslates(timeline.get(i - 1));
+					interpolateTranslates(currentTime);
+					break;
+				}
+			}
+		}
 	}
 
 	public void updateTimeline() {
 		for (int i = 0; i < timeline.size(); i++) {
-			if (timeline.get(i).getTime().toMillis() == mediaPlayer.getCurrentTime().toMillis()) {
+			if (Utils.sameTime(timeline.get(i).getTime().toMillis(), mediaPlayer.getCurrentTime().toMillis())) {
 				timeline.get(i).setCircleTranslates(circleTranslates);
 				break;
 			}
