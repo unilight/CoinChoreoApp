@@ -422,10 +422,11 @@ public class WorkViewController {
 			public void handle(ActionEvent e) {
 				newKeyFrame.setType(Keyframe.TWEEN);
 				paneCircle.setFill(COLOR_KEYFRAME_CIRCLE_ANIMATION);
+				double keyframeTime = newKeyFrame.getTime().toMillis();
 				for (int i = 0; i < timelineLines.size(); i++) {
 					// Equation: startX = SLIDER_X + SLIDER_WIDTH * keyframeTime
 					// / duration.toMillis()
-					double keyframeTime = newKeyFrame.getTime().toMillis();
+
 					if (Utils.sameTime(timelineLines.get(i).getStartTime(), keyframeTime)) {
 						timelineLines.get(i).setStrokeWidth(TIMELINE_LINE_ANIMATION);
 						break;
@@ -433,6 +434,7 @@ public class WorkViewController {
 				}
 				defaultMI.setDisable(false);
 				tweenMI.setDisable(true);
+				updateTranslates(mediaPlayer.getCurrentTime());
 				listTimeline();
 			}
 		});
@@ -452,6 +454,7 @@ public class WorkViewController {
 				}
 				defaultMI.setDisable(true);
 				tweenMI.setDisable(false);
+				updateTranslates(mediaPlayer.getCurrentTime());
 			}
 		});
 		contextMenu.getItems().addAll(tweenMI, defaultMI);
@@ -475,12 +478,12 @@ public class WorkViewController {
 					Duration oldTime = mediaPlayer.getCurrentTime();
 					mediaPlayer.seek(new Duration(newTime));
 					/*
-					while (mediaPlayer.getCurrentTime().toMillis() == oldTime.toMillis()) {
-						i++;
-						if (i > 100) {
-							break;
-						}
-					}
+					 * while (mediaPlayer.getCurrentTime().toMillis() == oldTime.toMillis()) {
+					 * i++;
+					 * if (i > 100) {
+					 * break;
+					 * }
+					 * }
 					 */
 					Task<Void> sleeper = new Task<Void>() {
 
@@ -518,7 +521,7 @@ public class WorkViewController {
 			System.out.println(timeline.get(i).toString());
 		}
 		for (int i = 0; i < timelineLines.size(); i++) {
-			System.out.println(timelineLines.get(i).getStartTime()+" "+timelineLines.get(i).getEndTime());
+			System.out.println(timelineLines.get(i).getStartTime() + " " + timelineLines.get(i).getEndTime());
 		}
 	}
 
@@ -754,12 +757,11 @@ public class WorkViewController {
 	public void updateValues() {
 		Status status = mediaPlayer.getStatus();
 		Duration currentTime = mediaPlayer.getCurrentTime();
-		System.out.println(currentTime.toMillis());
+		// System.out.println(currentTime.toMillis());
 
 		if (status == Status.PLAYING) {
 			if (currentTime.equals(duration)) {
 				mediaPlayer.pause();
-				currentTime = mediaPlayer.getCurrentTime();
 			}
 		}
 		time.setText(formatTime(currentTime));
@@ -767,28 +769,7 @@ public class WorkViewController {
 		if (!slider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slider.isValueChanging()) {
 			slider.setValue((currentTime.toMillis() / duration.toMillis()) * 100.0);
 		}
-		/*
-		 * final Duration argCurrentTime = currentTime;
-		 * Task<Void> sleeper = new Task<Void>() {
-		 * 
-		 * @Override
-		 * protected Void call() throws Exception {
-		 * try {
-		 * Thread.sleep(200);
-		 * } catch (InterruptedException e) {
-		 * }
-		 * return null;
-		 * }
-		 * };
-		 * sleeper.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-		 * 
-		 * @Override
-		 * public void handle(WorkerStateEvent event) {
-		 * updateTranslates(argCurrentTime);
-		 * }
-		 * });
-		 * new Thread(sleeper).start();
-		 */
+		
 		updateTranslates(currentTime);
 	}
 
@@ -802,7 +783,7 @@ public class WorkViewController {
 		for (int i = 0; i < timeline.size(); i++) {
 			if (Utils.sameTime(timeline.get(i).getTime().toMillis(), currentTime.toMillis())) {
 				deepCopyCircleTranslates(timeline.get(i));
-				interpolateTranslates(currentTime);
+				// interpolateTranslates(currentTime);
 				step2 = false;
 			}
 		}
@@ -828,10 +809,11 @@ public class WorkViewController {
 				Keyframe newKeyFrame = new Keyframe(circleTranslates, mediaPlayer.getCurrentTime());
 				timeline.add(i, newKeyFrame);
 				addKeyframePane(newKeyFrame);
+				// 如果有增加新的keyframe再更新
+				updateTimelineLines(mediaPlayer.getCurrentTime().toMillis());
 				break;
 			}
 		}
-		updateTimelineLines(mediaPlayer.getCurrentTime().toMillis());
 		listTimeline();
 	}
 
