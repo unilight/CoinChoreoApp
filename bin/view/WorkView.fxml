@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.canvas.*?>
@@ -21,8 +22,8 @@
                     <rowConstraints>
                         <RowConstraints maxHeight="91.0" minHeight="10.0" vgrow="SOMETIMES" />
                         <RowConstraints maxHeight="26.163753509521484" minHeight="15.0" prefHeight="24.795310974121094" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="24.836246490478516" minHeight="15.0" prefHeight="20.204689025878906" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="166.0" minHeight="10.0" prefHeight="162.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="52.0" minHeight="15.0" prefHeight="44.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="166.0" minHeight="10.0" prefHeight="139.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
                         <GridPane gridLinesVisible="true" GridPane.rowIndex="3">
@@ -130,11 +131,12 @@
                               <ColumnConstraints maxWidth="68.4443359375" minWidth="35.83624267578125" prefWidth="62.28662109375" />
                           </columnConstraints>
                           <rowConstraints>
-                              <RowConstraints />
+                              <RowConstraints maxHeight="25.25946807861328" minHeight="10.0" prefHeight="22.481063842773438" />
+                              <RowConstraints maxHeight="26.556808471679688" minHeight="18.74053192138672" prefHeight="21.518936157226562" />
                           </rowConstraints>
                            <children>
                               <AnchorPane fx:id="keyframePane" minHeight="-Infinity" GridPane.hgrow="ALWAYS" />
-                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="&lt;" GridPane.columnIndex="1" GridPane.halignment="LEFT">
+                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="+" GridPane.columnIndex="1" GridPane.halignment="LEFT">
                                  <font>
                                     <Font size="7.0" />
                                  </font>
@@ -142,7 +144,7 @@
                                     <Insets left="15.0" />
                                  </GridPane.margin>
                               </Button>
-                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="&gt;" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="-" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
                                  <font>
                                     <Font size="7.0" />
                                  </font>
@@ -150,6 +152,16 @@
                                     <Insets right="10.0" />
                                  </GridPane.margin>
                               </Button>
+                              <Label fx:id="timelineTimeLeft" text="00:00" GridPane.rowIndex="1">
+                                 <GridPane.margin>
+                                    <Insets left="10.0" />
+                                 </GridPane.margin>
+                              </Label>
+                              <Label fx:id="timelineTimeRight" alignment="CENTER_RIGHT" text="00:00" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
+                              </Label>
                            </children>
                         </GridPane>
                         <MenuBar>
@@ -189,7 +201,10 @@
                                     <Insets left="10.0" right="10.0" />
                                  </padding>
                               </Slider>
-                              <Label fx:id="time" text="00:00" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                              <Label fx:id="time" text="00:00" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                                 <font>
+                                    <Font name="System Bold" size="14.0" />
+                                 </font></Label>
                            </children>
                         </GridPane>
                      </children>
