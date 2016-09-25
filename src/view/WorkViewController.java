@@ -78,7 +78,7 @@ public class WorkViewController {
 	public final static int KEYFRAME_CIRCLE_RADIUS = 5;
 	public final static int SLIDER_WIDTH = 625;
 	public final static int SLIDER_X = 18;
-	public final static int SLIDER_Y = 8;
+	public final static int SLIDER_Y = 10;
 	public final static int SELECT_RADIUS = 12;
 	public final static int LINE_WIDTH = 2;
 	public final static int LINE_WIDTH_MAGNET = 4;
@@ -122,6 +122,10 @@ public class WorkViewController {
 	private AnchorPane keyframePane;
 	@FXML
 	public ComboBox<String> autoFormCombobox;
+	@FXML
+	public Label timelineTimeLeft;
+	@FXML
+	public Label timelineTimeRight;
 
 	private Proj curProj;
 
