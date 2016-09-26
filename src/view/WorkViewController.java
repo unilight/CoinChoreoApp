@@ -123,9 +123,12 @@ public class WorkViewController {
 	@FXML
 	public ComboBox<String> autoFormCombobox;
 	@FXML
-	public Label timelineTimeLeft;
+	public Label timelineTimeLeftLabel;
 	@FXML
-	public Label timelineTimeRight;
+	public Label timelineTimeRightLabel;
+
+	public double timelineTimeLeft;
+	public double timelineTimeRight;
 
 	private Proj curProj;
 
@@ -716,10 +719,12 @@ public class WorkViewController {
 			mediaPlayer.setAudioSpectrumInterval(0.0016);
 			duration = mediaPlayer.getMedia().getDuration();
 
+			// Timeline Lines
 			TimelineLine line = new TimelineLine(SLIDER_X, SLIDER_Y, SLIDER_X + SLIDER_WIDTH, SLIDER_Y, 0, duration.toMillis());
 			keyframePane.getChildren().add(line);
 			timelineLines.add(line);
 
+			// Timeline Keyframe circles
 			Keyframe newKeyframe;
 
 			newKeyframe = new Keyframe(circleTranslates, new Duration(0));
@@ -729,6 +734,12 @@ public class WorkViewController {
 			newKeyframe = new Keyframe(circleTranslates, duration);
 			timeline.add(newKeyframe);
 			addKeyframePane(newKeyframe);
+
+			// Timeline Time Labels
+			timelineTimeLeft = 0;
+			timelineTimeRight = duration.toMillis();
+			timelineTimeLeftLabel.setText(formatTime(new Duration(0)));
+			timelineTimeRightLabel.setText(formatTime(duration));
 
 			groupToggle.setDisable(false);
 			addToggle.setDisable(false);
@@ -773,7 +784,7 @@ public class WorkViewController {
 		if (!slider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slider.isValueChanging()) {
 			slider.setValue((currentTime.toMillis() / duration.toMillis()) * 100.0);
 		}
-		
+
 		updateTranslates(currentTime);
 	}
 
@@ -1483,5 +1494,32 @@ public class WorkViewController {
 			circleTranslates.get(index).setTranslateY(centerY + (centerY - orgY) - circle.getCenterY());
 		}
 		updateTimeline();
+	}
+
+	@FXML
+	public void timelineZoomIn() {
+		double newTLInterval = (timelineTimeRight - timelineTimeLeft) / 2;
+		double currentTime = mediaPlayer.getCurrentTime().toMillis();
+		timelineTimeLeft = currentTime - newTLInterval / 2;
+		timelineTimeRight = currentTime + newTLInterval / 2;
+		if (timelineTimeLeft < 0) {
+			timelineTimeRight += (-timelineTimeLeft);
+			timelineTimeLeft = 0;
+		}else if(timelineTimeRight>duration.toMillis()){
+			timelineTimeLeft -= (timelineTimeRight-duration.toMillis());
+			timelineTimeRight = duration.toMillis();
+		}
+		
+		// Update KeyframeCircles
+		
+
+		// Update Labels
+		timelineTimeLeftLabel.setText(formatTime(new Duration(timelineTimeLeft)));
+		timelineTimeRightLabel.setText(formatTime(new Duration(timelineTimeRight)));
+	}
+
+	@FXML
+	public void timelineZoomOut() {
+
 	}
 }

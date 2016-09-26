@@ -136,7 +136,7 @@
                           </rowConstraints>
                            <children>
                               <AnchorPane fx:id="keyframePane" minHeight="-Infinity" GridPane.hgrow="ALWAYS" />
-                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="+" GridPane.columnIndex="1" GridPane.halignment="LEFT">
+                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" onAction="#timelineZoomIn" text="+" GridPane.columnIndex="1" GridPane.halignment="LEFT">
                                  <font>
                                     <Font size="7.0" />
                                  </font>
@@ -144,7 +144,7 @@
                                     <Insets left="15.0" />
                                  </GridPane.margin>
                               </Button>
-                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="-" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" onAction="#timelineZoomOut" text="-" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
                                  <font>
                                     <Font size="7.0" />
                                  </font>
@@ -152,12 +152,12 @@
                                     <Insets right="10.0" />
                                  </GridPane.margin>
                               </Button>
-                              <Label fx:id="timelineTimeLeft" text="00:00" GridPane.rowIndex="1">
+                              <Label fx:id="timelineTimeLeftLabel" text="00:00" GridPane.rowIndex="1">
                                  <GridPane.margin>
                                     <Insets left="10.0" />
                                  </GridPane.margin>
                               </Label>
-                              <Label fx:id="timelineTimeRight" alignment="CENTER_RIGHT" text="00:00" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                              <Label fx:id="timelineTimeRightLabel" alignment="CENTER_RIGHT" text="00:00" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
                                  <GridPane.margin>
                                     <Insets right="10.0" />
                                  </GridPane.margin>
