@@ -152,6 +152,8 @@ public class WorkViewController {
 
 	private List<TimelineLine> timelineLines = new ArrayList<TimelineLine>();
 
+	private Line timelineCurrentTimeLine;
+
 	/* Music */
 	private String path = "music/Kim Bum Soo (김범수) - 욕심쟁이 (Feat. San E) [8집 HIM].mp3";
 	Media media;
@@ -267,7 +269,7 @@ public class WorkViewController {
 					if (timeline.get(i).getTime().toMillis() > newKeyFrame.getTime().toMillis()) {
 						timeline.add(i, newKeyFrame);
 						addKeyframePane(newKeyFrame);
-						updateTimelineLines(newKeyFrame.getTime().toMillis());
+						cutTimelineLines(newKeyFrame.getTime().toMillis());
 						break;
 					}
 				}
@@ -382,7 +384,7 @@ public class WorkViewController {
 		drawPane.getChildren().remove(rubberband);
 	}
 
-	private void updateTimelineLines(double keyframeTime) {
+	private void cutTimelineLines(double keyframeTime) {
 
 		double x = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis(); // 新的位置
 		TimelineLine betweenLine = null;
@@ -738,8 +740,14 @@ public class WorkViewController {
 			// Timeline Time Labels
 			timelineTimeLeft = 0;
 			timelineTimeRight = duration.toMillis();
-			timelineTimeLeftLabel.setText(formatTime(new Duration(0)));
-			timelineTimeRightLabel.setText(formatTime(duration));
+			timelineTimeLeftLabel.setText(Utils.formatTime(new Duration(0)));
+			timelineTimeRightLabel.setText(Utils.formatTime(duration));
+
+			// Current Time line
+			timelineCurrentTimeLine = new Line(SLIDER_X, 0, SLIDER_X, 22);
+			timelineCurrentTimeLine.setStroke(Color.ORANGE);
+			timelineCurrentTimeLine.setStrokeWidth(3);
+			keyframePane.getChildren().add(timelineCurrentTimeLine);
 
 			groupToggle.setDisable(false);
 			addToggle.setDisable(false);
@@ -754,7 +762,7 @@ public class WorkViewController {
 					// position
 					if (duration != null) {
 						mediaPlayer.seek(duration.multiply(slider.getValue() / 100.0));
-						time.setText(formatTime(mediaPlayer.getCurrentTime()));
+						time.setText(Utils.formatTime(mediaPlayer.getCurrentTime()));
 					}
 					updateValues();
 				}
@@ -779,13 +787,53 @@ public class WorkViewController {
 				mediaPlayer.pause();
 			}
 		}
-		time.setText(formatTime(currentTime));
+		time.setText(Utils.formatTime(currentTime));
 		slider.setDisable(duration.isUnknown());
 		if (!slider.isDisabled() && duration.greaterThan(Duration.ZERO) && !slider.isValueChanging()) {
 			slider.setValue((currentTime.toMillis() / duration.toMillis()) * 100.0);
 		}
 
 		updateTranslates(currentTime);
+		updateTimelineCurrentTimeLine(currentTime);
+	}
+
+	private void updateTimelineCurrentTimeLine(Duration ct) {
+		double currentTime = ct.toMillis();
+		double tlInterval = (timelineTimeRight - timelineTimeLeft);
+		double centerTime = tlInterval / 2;
+
+		// 先設定在中間
+		double x = SLIDER_X + SLIDER_WIDTH / 2;
+
+		// 算離center多遠
+		double displacement = centerTime - currentTime;
+
+		// 兩邊label位移
+		timelineTimeLeft = centerTime - tlInterval / 2 - displacement;
+		timelineTimeRight = centerTime + tlInterval / 2 - displacement;
+
+		// 若超過邊界，修正
+		if (timelineTimeLeft < 0) {
+			timelineTimeRight += (-timelineTimeLeft);
+			x -= SLIDER_WIDTH * ((-timelineTimeLeft) / tlInterval);
+			timelineTimeLeft = 0;
+		} else if (timelineTimeRight > duration.toMillis()) {
+			double exceed = timelineTimeRight - duration.toMillis();
+			timelineTimeLeft += (-exceed);
+			x += SLIDER_WIDTH * ((exceed) / tlInterval);
+			timelineTimeRight = duration.toMillis();
+		}
+
+		// 設定x
+		timelineCurrentTimeLine.setStartX(x);
+		timelineCurrentTimeLine.setEndX(x);
+
+		// Update Labels
+		timelineTimeLeftLabel.setText(Utils.formatTime(new Duration(timelineTimeLeft)));
+		timelineTimeRightLabel.setText(Utils.formatTime(new Duration(timelineTimeRight)));
+		
+		//System.out.println(timelineTimeLeft+" "+timelineTimeRight);
+
 	}
 
 	public void updateTranslates(Duration currentTime) {
@@ -825,7 +873,7 @@ public class WorkViewController {
 				timeline.add(i, newKeyFrame);
 				addKeyframePane(newKeyFrame);
 				// 如果有增加新的keyframe再更新
-				updateTimelineLines(mediaPlayer.getCurrentTime().toMillis());
+				cutTimelineLines(mediaPlayer.getCurrentTime().toMillis());
 				break;
 			}
 		}
@@ -889,13 +937,6 @@ public class WorkViewController {
 		}
 	}
 
-	private static String formatTime(Duration elapsed) {
-		int intElapsed = (int) Math.floor(elapsed.toSeconds());
-		int elapsedMinutes = intElapsed / 60;
-		int elapsedSeconds = intElapsed - elapsedMinutes * 60;
-		return String.format("%02d:%02d", elapsedMinutes, elapsedSeconds);
-	}
-
 	@FXML
 	public void loadDefaultMusic() {
 		if (mediaPlayer != null) {
@@ -905,7 +946,6 @@ public class WorkViewController {
 		mediaPlayer = new MediaPlayer(media);
 		mediaView = new MediaView(mediaPlayer);
 		initMediaPlayer();
-
 	}
 
 	@FXML
@@ -1505,21 +1545,32 @@ public class WorkViewController {
 		if (timelineTimeLeft < 0) {
 			timelineTimeRight += (-timelineTimeLeft);
 			timelineTimeLeft = 0;
-		}else if(timelineTimeRight>duration.toMillis()){
-			timelineTimeLeft -= (timelineTimeRight-duration.toMillis());
+		} else if (timelineTimeRight > duration.toMillis()) {
+			timelineTimeLeft -= (timelineTimeRight - duration.toMillis());
 			timelineTimeRight = duration.toMillis();
 		}
-		
-		// Update KeyframeCircles
-		
 
-		// Update Labels
-		timelineTimeLeftLabel.setText(formatTime(new Duration(timelineTimeLeft)));
-		timelineTimeRightLabel.setText(formatTime(new Duration(timelineTimeRight)));
+		// Update KeyframeCircles
+
+		updateTimelineCurrentTimeLine(mediaPlayer.getCurrentTime());
 	}
 
 	@FXML
 	public void timelineZoomOut() {
+		double newTLInterval = (timelineTimeRight - timelineTimeLeft) * 2;
+		double currentTime = mediaPlayer.getCurrentTime().toMillis();
+		timelineTimeLeft = currentTime - newTLInterval / 2;
+		timelineTimeRight = currentTime + newTLInterval / 2;
+		if (timelineTimeLeft < 0) {
+			timelineTimeRight += (-timelineTimeLeft);
+			timelineTimeLeft = 0;
+		} else if (timelineTimeRight > duration.toMillis()) {
+			timelineTimeLeft -= (timelineTimeRight - duration.toMillis());
+			timelineTimeRight = duration.toMillis();
+		}
 
+		// Update KeyframeCircles
+
+		updateTimelineCurrentTimeLine(mediaPlayer.getCurrentTime());
 	}
 }

@@ -131,7 +131,7 @@
                               <ColumnConstraints maxWidth="68.4443359375" minWidth="35.83624267578125" prefWidth="62.28662109375" />
                           </columnConstraints>
                           <rowConstraints>
-                              <RowConstraints maxHeight="25.25946807861328" minHeight="10.0" prefHeight="22.481063842773438" />
+                              <RowConstraints maxHeight="22.0" minHeight="10.0" prefHeight="22.0" />
                               <RowConstraints maxHeight="26.556808471679688" minHeight="18.74053192138672" prefHeight="21.518936157226562" />
                           </rowConstraints>
                            <children>
