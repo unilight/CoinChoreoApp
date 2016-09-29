@@ -415,7 +415,7 @@ public class WorkViewController {
 	private void addKeyframePane(Keyframe newKeyFrame) {
 
 		double keyframeTime = newKeyFrame.getTime().toMillis();
-		double x = SLIDER_X + SLIDER_WIDTH * keyframeTime / duration.toMillis();
+		double x = SLIDER_X + SLIDER_WIDTH * ((keyframeTime - timelineTimeLeft) / (timelineTimeRight - timelineTimeLeft));
 		PaneCircle paneCircle = new PaneCircle(x, SLIDER_Y, KEYFRAME_CIRCLE_RADIUS, COLOR_KEYFRAME_CIRCLE_DEFAULT, keyframeTime);
 		paneCircle.setStroke(Color.BLACK);
 		paneCircle.setStrokeType(StrokeType.OUTSIDE);
@@ -721,6 +721,18 @@ public class WorkViewController {
 			mediaPlayer.setAudioSpectrumInterval(0.0016);
 			duration = mediaPlayer.getMedia().getDuration();
 
+			// Timeline Time Labels
+			timelineTimeLeft = 0;
+			timelineTimeRight = duration.toMillis();
+			timelineTimeLeftLabel.setText(Utils.formatTime(new Duration(0)));
+			timelineTimeRightLabel.setText(Utils.formatTime(duration));
+
+			// Current Time line
+			timelineCurrentTimeLine = new Line(SLIDER_X, 0, SLIDER_X, 22);
+			timelineCurrentTimeLine.setStroke(Color.ORANGE);
+			timelineCurrentTimeLine.setStrokeWidth(3);
+			keyframePane.getChildren().add(timelineCurrentTimeLine);
+
 			// Timeline Lines
 			TimelineLine line = new TimelineLine(SLIDER_X, SLIDER_Y, SLIDER_X + SLIDER_WIDTH, SLIDER_Y, 0, duration.toMillis());
 			keyframePane.getChildren().add(line);
@@ -736,18 +748,6 @@ public class WorkViewController {
 			newKeyframe = new Keyframe(circleTranslates, duration);
 			timeline.add(newKeyframe);
 			addKeyframePane(newKeyframe);
-
-			// Timeline Time Labels
-			timelineTimeLeft = 0;
-			timelineTimeRight = duration.toMillis();
-			timelineTimeLeftLabel.setText(Utils.formatTime(new Duration(0)));
-			timelineTimeRightLabel.setText(Utils.formatTime(duration));
-
-			// Current Time line
-			timelineCurrentTimeLine = new Line(SLIDER_X, 0, SLIDER_X, 22);
-			timelineCurrentTimeLine.setStroke(Color.ORANGE);
-			timelineCurrentTimeLine.setStrokeWidth(3);
-			keyframePane.getChildren().add(timelineCurrentTimeLine);
 
 			groupToggle.setDisable(false);
 			addToggle.setDisable(false);
@@ -794,6 +794,7 @@ public class WorkViewController {
 		}
 
 		updateTranslates(currentTime);
+		updateTimelineZoom();
 		updateTimelineCurrentTimeLine(currentTime);
 	}
 
@@ -831,8 +832,8 @@ public class WorkViewController {
 		// Update Labels
 		timelineTimeLeftLabel.setText(Utils.formatTime(new Duration(timelineTimeLeft)));
 		timelineTimeRightLabel.setText(Utils.formatTime(new Duration(timelineTimeRight)));
-		
-		//System.out.println(timelineTimeLeft+" "+timelineTimeRight);
+
+		// System.out.println(timelineTimeLeft+" "+timelineTimeRight);
 
 	}
 
@@ -878,6 +879,34 @@ public class WorkViewController {
 			}
 		}
 		listTimeline();
+	}
+
+	public void updateTimelineZoom() {
+		double currentTime = mediaPlayer.getCurrentTime().toMillis();
+		for (int i = 0; i < timeline.size(); i++) {
+			// Lefter, remove
+			if (timeline.get(i).getTime().toMillis() < timelineTimeLeft) {
+				keyframePane.getChildren().remove(timeline.get(i).getPaneCircle());
+				continue;
+			}
+			// Righter, remove
+			if (timeline.get(i).getTime().toMillis() > timelineTimeRight) {
+				keyframePane.getChildren().remove(timeline.get(i).getPaneCircle());
+				continue;
+			}
+			// Find proper place according to current zoom rate
+			double destinationX = SLIDER_X
+					+ SLIDER_WIDTH * ((timeline.get(i).getTime().toMillis() - timelineTimeLeft) / (timelineTimeRight - timelineTimeLeft));
+			double originCenterX = timeline.get(i).getPaneCircle().getCenterX();
+
+			// System.out.println(i + " " + destinationX + " " + originCenterX);
+
+			// Check if on the keyframe pane
+			timeline.get(i).getPaneCircle().setTranslateX(destinationX - originCenterX);
+			if (!keyframePane.getChildren().contains(timeline.get(i).getPaneCircle())) {
+				keyframePane.getChildren().add(timeline.get(i).getPaneCircle());
+			}
+		}
 	}
 
 	private void interpolateTranslates(Duration currentTime) {
@@ -1551,6 +1580,7 @@ public class WorkViewController {
 		}
 
 		// Update KeyframeCircles
+		updateTimelineZoom();
 
 		updateTimelineCurrentTimeLine(mediaPlayer.getCurrentTime());
 	}
@@ -1558,6 +1588,9 @@ public class WorkViewController {
 	@FXML
 	public void timelineZoomOut() {
 		double newTLInterval = (timelineTimeRight - timelineTimeLeft) * 2;
+		if (newTLInterval > duration.toMillis()) {
+			newTLInterval = duration.toMillis();
+		}
 		double currentTime = mediaPlayer.getCurrentTime().toMillis();
 		timelineTimeLeft = currentTime - newTLInterval / 2;
 		timelineTimeRight = currentTime + newTLInterval / 2;
@@ -1570,6 +1603,7 @@ public class WorkViewController {
 		}
 
 		// Update KeyframeCircles
+		updateTimelineZoom();
 
 		updateTimelineCurrentTimeLine(mediaPlayer.getCurrentTime());
 	}
