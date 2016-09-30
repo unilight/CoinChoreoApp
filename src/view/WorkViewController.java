@@ -883,6 +883,39 @@ public class WorkViewController {
 
 	public void updateTimelineZoom() {
 		double currentTime = mediaPlayer.getCurrentTime().toMillis();
+
+		// Handle lines first, then circles, so that their depth will be correct
+
+		for (int i = 0; i < timelineLines.size(); i++) {
+			if (timelineLines.get(i).getEndTime() < timelineTimeLeft) {
+				keyframePane.getChildren().remove(timelineLines.get(i));
+				continue;
+			}
+			if (timelineLines.get(i).getStartTime() > timelineTimeRight) {
+				keyframePane.getChildren().remove(timelineLines.get(i));
+				continue;
+			}
+			// Find proper place according to current zoom rate
+			double leftX = SLIDER_X
+					+ SLIDER_WIDTH * ((timelineLines.get(i).getStartTime() - timelineTimeLeft) / (timelineTimeRight - timelineTimeLeft));
+			double rightX = SLIDER_X
+					+ SLIDER_WIDTH * ((timelineLines.get(i).getEndTime() - timelineTimeLeft) / (timelineTimeRight - timelineTimeLeft));
+
+			if (leftX < SLIDER_X) {
+				leftX = SLIDER_X;
+			}
+			if (rightX > SLIDER_X + SLIDER_WIDTH) {
+				rightX = SLIDER_X + SLIDER_WIDTH;
+			}
+
+			// Check if on the keyframe pane
+			timelineLines.get(i).setStartX(leftX);
+			timelineLines.get(i).setEndX(rightX);
+			if (!keyframePane.getChildren().contains(timelineLines.get(i))) {
+				keyframePane.getChildren().add(timelineLines.get(i));
+			}
+		}
+
 		for (int i = 0; i < timeline.size(); i++) {
 			// Lefter, remove
 			if (timeline.get(i).getTime().toMillis() < timelineTimeLeft) {
