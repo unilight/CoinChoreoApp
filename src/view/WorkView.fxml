@@ -131,12 +131,12 @@
                               <ColumnConstraints maxWidth="68.4443359375" minWidth="35.83624267578125" prefWidth="62.28662109375" />
                           </columnConstraints>
                           <rowConstraints>
-                              <RowConstraints maxHeight="25.25946807861328" minHeight="10.0" prefHeight="22.481063842773438" />
+                              <RowConstraints maxHeight="22.0" minHeight="10.0" prefHeight="22.0" />
                               <RowConstraints maxHeight="26.556808471679688" minHeight="18.74053192138672" prefHeight="21.518936157226562" />
                           </rowConstraints>
                            <children>
                               <AnchorPane fx:id="keyframePane" minHeight="-Infinity" GridPane.hgrow="ALWAYS" />
-                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="+" GridPane.columnIndex="1" GridPane.halignment="LEFT">
+                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" onAction="#timelineZoomIn" text="+" GridPane.columnIndex="1" GridPane.halignment="LEFT">
                                  <font>
                                     <Font size="7.0" />
                                  </font>
@@ -144,7 +144,7 @@
                                     <Insets left="15.0" />
                                  </GridPane.margin>
                               </Button>
-                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" text="-" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+                              <Button maxHeight="5.0" maxWidth="5.0" mnemonicParsing="false" onAction="#timelineZoomOut" text="-" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
                                  <font>
                                     <Font size="7.0" />
                                  </font>
@@ -152,12 +152,12 @@
                                     <Insets right="10.0" />
                                  </GridPane.margin>
                               </Button>
-                              <Label fx:id="timelineTimeLeft" text="00:00" GridPane.rowIndex="1">
+                              <Label fx:id="timelineTimeLeftLabel" text="00:00" GridPane.rowIndex="1">
                                  <GridPane.margin>
                                     <Insets left="10.0" />
                                  </GridPane.margin>
                               </Label>
-                              <Label fx:id="timelineTimeRight" alignment="CENTER_RIGHT" text="00:00" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                              <Label fx:id="timelineTimeRightLabel" alignment="CENTER_RIGHT" text="00:00" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
                                  <GridPane.margin>
                                     <Insets right="10.0" />
                                  </GridPane.margin>
